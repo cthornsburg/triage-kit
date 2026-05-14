@@ -19,17 +19,13 @@ import (
 
 const version = "1.0"
 
-const retiredLocalCaseID = "CASE-LOCAL-001"
-
 type Config struct {
 	OutputDir  string
 	BatchID    string
-	CaseID     string
 	Hostname   string
 	OperatorID string
 	MediaLabel string
 	Notes      string
-	DryRun     bool
 	Now        time.Time
 }
 
@@ -37,8 +33,8 @@ func Run(cfg Config) error {
 	if cfg.OutputDir == "" {
 		return fmt.Errorf("output directory is required")
 	}
-	if cfg.BatchID == "" || cfg.Hostname == "" || cfg.OperatorID == "" {
-		return fmt.Errorf("batch-id, hostname, and operator-id are required")
+	if cfg.Hostname == "" || cfg.OperatorID == "" {
+		return fmt.Errorf("hostname and operator-id are required")
 	}
 
 	now := cfg.Now
@@ -46,6 +42,7 @@ func Run(cfg Config) error {
 		now = time.Now().UTC()
 	}
 
+	cfg.BatchID = collectionBatchID(cfg.BatchID, now)
 	resolvedHostname := resolveHostLabel(cfg.Hostname)
 	printBanner(cfg, resolvedHostname)
 	layout, err := casebundle.Create(cfg.OutputDir, cfg.BatchID, resolvedHostname, now)
@@ -54,11 +51,10 @@ func Run(cfg Config) error {
 	}
 
 	bundleID := stableBundleID(resolvedHostname, now)
-	collectionCaseID, metadataWarnings := collectionCaseID(cfg.CaseID, bundleID)
 
 	fmt.Fprintln(os.Stdout, "[SEKER] Preparing output folders...")
-	artifacts, warnings, errors := collectArtifacts(context.Background(), layout.CaseDir, now, cfg.DryRun, metadataWarnings)
-	manifest := buildCollectorManifest(cfg, now, resolvedHostname, bundleID, collectionCaseID, artifacts, warnings, errors)
+	artifacts, warnings, errors := collectArtifacts(context.Background(), layout.CaseDir, now, nil)
+	manifest := buildCollectorManifest(cfg, now, resolvedHostname, bundleID, artifacts, warnings, errors)
 	if err := writejson.File(filepath.Join(layout.CaseDir, "manifest.json"), manifest); err != nil {
 		return err
 	}
@@ -73,11 +69,7 @@ func Run(cfg Config) error {
 	}
 
 	fmt.Fprintln(os.Stdout, "[SEKER] Finalizing manifest and hashes...")
-	label := "bundle"
-	if cfg.DryRun {
-		label = "dry-run bundle"
-	}
-	fmt.Fprintf(os.Stdout, "[SEKER] Collection complete. %s created at %s\n", label, layout.CaseDir)
+	fmt.Fprintf(os.Stdout, "[SEKER] Collection complete. Bundle created at %s\n", layout.CaseDir)
 	return nil
 }
 
@@ -89,19 +81,19 @@ type collectorPhase struct {
 
 func collectionPlan() []collectorPhase {
 	return []collectorPhase{
-		{Phase: 1, Name: "minimal preflight host identity", Collector: collect.HostCollector{}},
-		{Phase: 2, Name: "volatile process inventory fallback snapshot", Collector: collect.ProcessCollector{}},
-		{Phase: 2, Name: "volatile network information", Collector: collect.NetworkCollector{}},
-		{Phase: 3, Name: "contamination-sensitive readable logs", Collector: collect.LogsCollector{}},
-		{Phase: 4, Name: "richer process detail after log capture", Collector: collect.ProcessDetailCollector{}},
-		{Phase: 5, Name: "execution and persistence inventory", Collector: collect.PersistenceCollector{}},
-		{Phase: 6, Name: "security posture", Collector: collect.SecurityCollector{}},
-		{Phase: 7, Name: "installed-program inventory", Collector: collect.SoftwareCollector{}},
-		{Phase: 7, Name: "device and removable-media inventory", Collector: collect.DeviceCollector{}},
+		{Phase: 1, Name: "Identifying Host", Collector: collect.HostCollector{}},
+		{Phase: 2, Name: "Collecting Process IDs", Collector: collect.ProcessCollector{}},
+		{Phase: 3, Name: "Collecting Network Data", Collector: collect.NetworkCollector{}},
+		{Phase: 4, Name: "Collecting Log Data", Collector: collect.LogsCollector{}},
+		{Phase: 5, Name: "Identifying Processes", Collector: collect.ProcessDetailCollector{}},
+		{Phase: 6, Name: "Persistence Checks", Collector: collect.PersistenceCollector{}},
+		{Phase: 7, Name: "Security Status", Collector: collect.SecurityCollector{}},
+		{Phase: 8, Name: "Software Inventory", Collector: collect.SoftwareCollector{}},
+		{Phase: 9, Name: "Verifying Removable Media", Collector: collect.DeviceCollector{}},
 	}
 }
 
-func collectArtifacts(ctx context.Context, caseDir string, now time.Time, dryRun bool, initialWarnings []string) ([]model.ArtifactRecord, []string, []string) {
+func collectArtifacts(ctx context.Context, caseDir string, now time.Time, initialWarnings []string) ([]model.ArtifactRecord, []string, []string) {
 	collectors := collectionPlan()
 
 	artifacts := make([]model.ArtifactRecord, 0, len(collectors)+2)
@@ -111,8 +103,7 @@ func collectArtifacts(ctx context.Context, caseDir string, now time.Time, dryRun
 
 	for i, phase := range collectors {
 		collectedAt := now.Add(time.Duration(i) * time.Second)
-		label := collectorLabel(phase.Collector)
-		phaseEvent := fmt.Sprintf("phase %d: %s (%s)", phase.Phase, phase.Name, label)
+		phaseEvent := fmt.Sprintf("%d. %s", phase.Phase, phase.Name)
 		phaseEvents = append(phaseEvents, phaseEvent)
 		fmt.Fprintf(os.Stdout, "[SEKER] %s...\n", phaseEvent)
 		records, _ := phase.Collector.Collect(ctx, caseDir, collectedAt)
@@ -137,17 +128,16 @@ func collectArtifacts(ctx context.Context, caseDir string, now time.Time, dryRun
 		errors = append(errors, errorNotes...)
 	}
 
-	finalPhaseEvent := "phase 8: final metadata, manifest, and hashes"
+	finalPhaseEvent := "Finalizing metadata, manifest, and hashes"
 	phaseEvents = append(phaseEvents, finalPhaseEvent)
-	fmt.Fprintf(os.Stdout, "[SEKER] %s...\n", finalPhaseEvent)
-	collectorLogArtifact, collectorErrorsArtifact, metaWarnings, metaErrors := writeMetaArtifacts(caseDir, now.Add(time.Duration(len(collectors))*time.Second), dryRun, warnings, errors, phaseEvents)
+	collectorLogArtifact, collectorErrorsArtifact, metaWarnings, metaErrors := writeMetaArtifacts(caseDir, now.Add(time.Duration(len(collectors))*time.Second), warnings, errors, phaseEvents)
 	artifacts = append(artifacts, collectorLogArtifact, collectorErrorsArtifact)
 	warnings = append(warnings, metaWarnings...)
 	errors = append(errors, metaErrors...)
 	return artifacts, unique(warnings), unique(errors)
 }
 
-func buildCollectorManifest(cfg Config, now time.Time, resolvedHostname string, bundleID string, collectionCaseID string, artifacts []model.ArtifactRecord, warnings []string, errors []string) model.CollectorBundleManifest {
+func buildCollectorManifest(cfg Config, now time.Time, resolvedHostname string, bundleID string, artifacts []model.ArtifactRecord, warnings []string, errors []string) model.CollectorBundleManifest {
 	usbSerial := strings.TrimSpace(cfg.MediaLabel)
 	if usbSerial == "" {
 		usbSerial = "UNSPECIFIED"
@@ -188,12 +178,11 @@ func buildCollectorManifest(cfg Config, now time.Time, resolvedHostname string, 
 		SchemaVersion: model.SchemaVersion,
 		BundleID:      bundleID,
 		BatchID:       cfg.BatchID,
-		CaseID:        collectionCaseID,
 		CollectedAt:   now,
 		Collector: model.CollectorInfo{
 			Name:      "SEKER",
 			Version:   version,
-			Mode:      collectorMode(cfg.DryRun),
+			Mode:      collectorMode(),
 			USBSerial: &usbSerial,
 		},
 		Operator: model.OperatorInfo{
@@ -211,7 +200,7 @@ func buildCollectorManifest(cfg Config, now time.Time, resolvedHostname string, 
 			BootTime:     bootTime,
 		},
 		Profile: model.ProfileInfo{
-			Name:                  profileName(cfg.DryRun),
+			Name:                  profileName(),
 			ArtifactPolicyVersion: &artifactPolicyVersion,
 		},
 		Artifacts: artifacts,
@@ -248,7 +237,6 @@ func buildBatchManifest(batchManifestPath string, cfg Config, now time.Time, rel
 	}
 	entry := model.BatchCaseEntry{
 		BundleID:     manifest.BundleID,
-		CaseID:       manifest.CaseID,
 		Hostname:     manifest.TargetHost.Hostname,
 		RelativePath: relativeCase,
 		CollectedAt:  manifest.CollectedAt,
@@ -262,26 +250,19 @@ func stableBundleID(hostname string, collectedAt time.Time) string {
 	return fmt.Sprintf("bundle-%s-%s", strings.ToLower(sanitizeIdentityPart(hostname)), collectedAt.UTC().Format("20060102-150405z"))
 }
 
-func collectionCaseID(configuredCaseID string, bundleID string) (string, []string) {
-	trimmed := strings.TrimSpace(configuredCaseID)
-	if trimmed == "" {
-		return bundleID, nil
+func collectionBatchID(configuredBatchID string, collectedAt time.Time) string {
+	trimmed := strings.TrimSpace(configuredBatchID)
+	if trimmed != "" {
+		return trimmed
 	}
-	if strings.EqualFold(trimmed, retiredLocalCaseID) {
-		return bundleID, []string{"metadata.case_id: retired fallback CASE-LOCAL-001 was ignored; collection case_id set to bundle_id"}
-	}
-	return trimmed, nil
+	return "batch-" + collectedAt.UTC().Format("20060102-150405z")
 }
 
-func writeMetaArtifacts(caseDir string, collectedAt time.Time, dryRun bool, warnings []string, errors []string, phaseEvents []string) (model.ArtifactRecord, model.ArtifactRecord, []string, []string) {
+func writeMetaArtifacts(caseDir string, collectedAt time.Time, warnings []string, errors []string, phaseEvents []string) (model.ArtifactRecord, model.ArtifactRecord, []string, []string) {
 	logPath := filepath.Join(caseDir, "collector-log.txt")
 	logLines := []string{"collector run complete", "collection phase order:"}
 	logLines = append(logLines, phaseEvents...)
-	if dryRun {
-		logLines = append(logLines, "mode: debug dry-run disabled real acquisition side effects")
-	} else {
-		logLines = append(logLines, "mode: baseline acquisition")
-	}
+	logLines = append(logLines, "mode: read-only system information collection")
 	if len(warnings) > 0 {
 		logLines = append(logLines, fmt.Sprintf("warnings: %d", len(warnings)))
 		logLines = append(logLines, warnings...)
@@ -411,13 +392,10 @@ func resolveHostLabel(value string) string {
 }
 
 func printBanner(cfg Config, hostname string) {
-	fmt.Fprintln(os.Stdout, "SEKER - Windows Triage Collector")
+	fmt.Fprintln(os.Stdout, "SEKER - System Information Collector")
+	fmt.Fprintln(os.Stdout, "[SEKER] Read-only mode: no data on the host is altered by SEKER.")
 	fmt.Fprintf(os.Stdout, "[SEKER] Host target: %s\n", hostname)
-	caseLabel := strings.TrimSpace(cfg.CaseID)
-	if caseLabel == "" || strings.EqualFold(caseLabel, retiredLocalCaseID) {
-		caseLabel = "generated from bundle identity"
-	}
-	fmt.Fprintf(os.Stdout, "[SEKER] Batch: %s | Collection case: %s\n", cfg.BatchID, caseLabel)
+	fmt.Fprintf(os.Stdout, "[SEKER] Batch ID: %s\n", cfg.BatchID)
 	fmt.Fprintln(os.Stdout, "[SEKER] Collection started. Please wait...")
 }
 
@@ -460,17 +438,11 @@ func relativeArtifactPath(path string) string {
 	return filepath.ToSlash(filepath.Base(path))
 }
 
-func collectorMode(dryRun bool) string {
-	if dryRun {
-		return "debug"
-	}
-	return "no-admin-baseline"
+func collectorMode() string {
+	return "read-only-baseline"
 }
 
-func profileName(dryRun bool) string {
-	if dryRun {
-		return "baseline-dry-run"
-	}
+func profileName() string {
 	return "baseline-live"
 }
 

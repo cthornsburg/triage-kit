@@ -17,7 +17,6 @@ type BatchManifest struct {
 
 type BatchCaseEntry struct {
 	BundleID     string    `json:"bundle_id"`
-	CaseID       string    `json:"case_id"`
 	Hostname     string    `json:"hostname"`
 	RelativePath string    `json:"relative_path"`
 	CollectedAt  time.Time `json:"collected_at"`

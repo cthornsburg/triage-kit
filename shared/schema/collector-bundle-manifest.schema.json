@@ -8,7 +8,6 @@
     "schema_version",
     "bundle_id",
     "batch_id",
-    "case_id",
     "collected_at",
     "collector",
     "operator",
@@ -21,7 +20,6 @@
     "schema_version": { "type": "string" },
     "bundle_id": { "type": "string" },
     "batch_id": { "type": "string" },
-    "case_id": { "type": "string" },
     "collected_at": { "type": "string", "format": "date-time" },
     "collector": {
       "type": "object",

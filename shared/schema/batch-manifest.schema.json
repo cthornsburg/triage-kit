@@ -26,10 +26,9 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["bundle_id", "case_id", "hostname", "relative_path", "collected_at", "status"],
+        "required": ["bundle_id", "hostname", "relative_path", "collected_at", "status"],
         "properties": {
           "bundle_id": { "type": "string" },
-          "case_id": { "type": "string" },
           "hostname": { "type": "string" },
           "relative_path": { "type": "string" },
           "collected_at": { "type": "string", "format": "date-time" },

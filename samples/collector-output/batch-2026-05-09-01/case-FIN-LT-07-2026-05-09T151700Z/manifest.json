@@ -2,7 +2,6 @@
   "schema_version": "0.1.0",
   "bundle_id": "bundle-finlt07-20260509-151700z",
   "batch_id": "batch-2026-05-09-01",
-  "case_id": "CASE-2026-0509-002",
   "collected_at": "2026-05-09T15:17:00Z",
   "collector": {
     "name": "SEKER",
@@ -42,7 +41,10 @@
       "collector_status": "ok",
       "error": null,
       "notes": [],
-      "tags": ["identity", "host"]
+      "tags": [
+        "identity",
+        "host"
+      ]
     },
     {
       "artifact_id": "browser-extensions",
@@ -56,8 +58,13 @@
       "collected_at": "2026-05-09T15:17:26Z",
       "collector_status": "ok",
       "error": null,
-      "notes": ["Collected from readable profile manifests only."],
-      "tags": ["browser", "extensions"]
+      "notes": [
+        "Collected from readable profile manifests only."
+      ],
+      "tags": [
+        "browser",
+        "extensions"
+      ]
     },
     {
       "artifact_id": "scheduled-tasks",
@@ -71,8 +78,13 @@
       "collected_at": "2026-05-09T15:17:39Z",
       "collector_status": "partial",
       "error": null,
-      "notes": ["Some task actions were not readable in this context."],
-      "tags": ["tasks", "persistence"]
+      "notes": [
+        "Some task actions were not readable in this context."
+      ],
+      "tags": [
+        "tasks",
+        "persistence"
+      ]
     },
     {
       "artifact_id": "defender-events",
@@ -87,7 +99,10 @@
       "collector_status": "error",
       "error": "Access denied or log unavailable",
       "notes": [],
-      "tags": ["defender", "logs"]
+      "tags": [
+        "defender",
+        "logs"
+      ]
     }
   ],
   "summary": {

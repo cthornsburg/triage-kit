@@ -2,7 +2,6 @@
   "schema_version": "0.1.0",
   "bundle_id": "bundle-ws23-20260509-140500z",
   "batch_id": "batch-2026-05-09-01",
-  "case_id": "CASE-2026-0509-001",
   "collected_at": "2026-05-09T14:05:00Z",
   "collector": {
     "name": "SEKER",
@@ -42,7 +41,10 @@
       "collector_status": "ok",
       "error": null,
       "notes": [],
-      "tags": ["identity", "host"]
+      "tags": [
+        "identity",
+        "host"
+      ]
     },
     {
       "artifact_id": "process-list",
@@ -56,8 +58,13 @@
       "collected_at": "2026-05-09T14:05:20Z",
       "collector_status": "ok",
       "error": null,
-      "notes": ["Command-line detail not available in this sample artifact."],
-      "tags": ["process", "execution"]
+      "notes": [
+        "Command-line detail not available in this sample artifact."
+      ],
+      "tags": [
+        "process",
+        "execution"
+      ]
     },
     {
       "artifact_id": "net-connections",
@@ -72,7 +79,10 @@
       "collector_status": "ok",
       "error": null,
       "notes": [],
-      "tags": ["network", "connections"]
+      "tags": [
+        "network",
+        "connections"
+      ]
     },
     {
       "artifact_id": "hkcu-run",
@@ -87,7 +97,10 @@
       "collector_status": "ok",
       "error": null,
       "notes": [],
-      "tags": ["persistence", "autorun"]
+      "tags": [
+        "persistence",
+        "autorun"
+      ]
     },
     {
       "artifact_id": "powershell-operational",
@@ -101,8 +114,13 @@
       "collected_at": "2026-05-09T14:05:46Z",
       "collector_status": "partial",
       "error": null,
-      "notes": ["Collected subset only."],
-      "tags": ["logs", "powershell"]
+      "notes": [
+        "Collected subset only."
+      ],
+      "tags": [
+        "logs",
+        "powershell"
+      ]
     }
   ],
   "summary": {

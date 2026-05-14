@@ -14,3 +14,9 @@ hub/tmp/
 *.db
 *.db-shm
 *.db-wal
+
+# IDE metadata
+.idea/
+
+# Local rollback guardrail snapshots
+rollback/

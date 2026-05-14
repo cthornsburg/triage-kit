@@ -296,7 +296,9 @@ go run ./cmd/review-api
 
 - lock the next SEKER iteration to `docs/seker-next-iteration-plan.md`: minimal preflight, volatile process/network state, contamination-sensitive logs before PowerShell/WMI/CIM, host/session context, execution/persistence inventory, security posture, device/software inventory, then final integrity outputs; file triage is deferred to SEKER v2.0
 - immediate sequencing fix: collect readable logs, especially PowerShell Operational, before any PowerShell-based persistence/security/device collectors so SEKER self-noise is visible but not injected before the log slice
-- remove the current collector-side fallback `case_id` behavior so SEKER is not emitting reused `CASE-LOCAL-001` metadata
+- Thoth dependence on SEKER `case_id` has been removed; Thoth assigns analyst-facing Case IDs during ingest and stores SEKER `bundle_id` as Collection ID
+- SEKER public CLI no longer exposes `--case-id` or `--dry-run`; dry-run behavior and collector-side fallback `case_id` behavior have been removed
+- SEKER keeps/generates `batch_id` for grouping and dedupe; dedupe remains based on `batch_id` + `bundle_id`
 - defer file triage collection to SEKER v2.0; next SEKER iteration should focus on host/session enrichment, richer process details, security posture, installed-program inventory, device/removable-media inventory, Wi-Fi/Bluetooth/virtual-adapter context, and metadata cleanup
 - add security posture signals, including a quick no-admin Windows Defender and Windows Firewall posture artifact for Host Overview: prefer `Get-MpComputerStatus` fields such as `AMServiceEnabled`, `AntivirusEnabled`, `RealTimeProtectionEnabled`, signature versions/dates, with `WinDefend` service status as fallback/context; collect `netsh advfirewall show allprofiles` for Domain/Private/Public firewall ON/OFF state and default inbound/outbound policy
 - add installed-program/software inventory collection using no-admin registry uninstall keys first (`HKLM` 64-bit, `HKLM` WOW6432Node, and `HKCU` uninstall paths); capture display name, publisher, version, install date/source/location, uninstall string when readable, and note limitations for portable apps, Store/UWP apps, and unreliable install dates
@@ -308,7 +310,7 @@ go run ./cmd/review-api
 - add Wi-Fi context collection where readable (current SSID/BSSID, adapter state, saved profile metadata when safely available), then surface it on the Thoth network configuration details page alongside adapter/IP context
 - add Bluetooth context collection where readable (adapter state, paired devices, recent device indicators when safely available), then surface it on the Thoth network configuration details page alongside adapter/IP context
 - ensure network configuration details clearly identify virtual/container/VM adapters when visible through Windows networking output (for example Hyper-V, WSL, Docker, VMware, VirtualBox, VPN, Npcap/loopback), with review hints so analysts do not confuse virtual/local-only interfaces with primary routed adapters
-- clean up remaining manifest metadata fallback behavior around `case_id`, username, and domain fields
+- continue polishing username/domain presentation where real-world samples expose ambiguity
 - later: Windows Server coverage, optional elevated mode, and memory-capture-aware workflows
 
 ### Current identity direction

@@ -10,7 +10,6 @@
   "cases": [
     {
       "bundle_id": "bundle-ws23-20260509-140500z",
-      "case_id": "CASE-2026-0509-001",
       "hostname": "WS-23",
       "relative_path": "case-WS-23-2026-05-09T140500Z",
       "collected_at": "2026-05-09T14:05:00Z",
@@ -18,7 +17,6 @@
     },
     {
       "bundle_id": "bundle-finlt07-20260509-151700z",
-      "case_id": "CASE-2026-0509-002",
       "hostname": "FIN-LT-07",
       "relative_path": "case-FIN-LT-07-2026-05-09T151700Z",
       "collected_at": "2026-05-09T15:17:00Z",

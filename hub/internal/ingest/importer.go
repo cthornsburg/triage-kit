@@ -33,7 +33,7 @@ type BatchManifest struct {
 
 type BatchCaseRef struct {
 	BundleID     string `json:"bundle_id"`
-	CaseID       string `json:"case_id"`
+	CaseID       string `json:"case_id,omitempty"` // legacy collector-side value; not required for ingest
 	Hostname     string `json:"hostname"`
 	RelativePath string `json:"relative_path"`
 	CollectedAt  string `json:"collected_at"`
@@ -44,7 +44,7 @@ type BundleManifest struct {
 	SchemaVersion string          `json:"schema_version"`
 	BundleID      string          `json:"bundle_id"`
 	BatchID       string          `json:"batch_id"`
-	CaseID        string          `json:"case_id"`
+	CaseID        string          `json:"case_id,omitempty"` // legacy collector-side value; not required for ingest
 	CollectedAt   string          `json:"collected_at"`
 	Collector     CollectorInfo   `json:"collector"`
 	Operator      OperatorInfo    `json:"operator"`
@@ -300,7 +300,6 @@ func discoverCaseRefs(batchManifest BatchManifest, stagedBatchDir string) ([]Bat
 		}
 		refs = append(refs, BatchCaseRef{
 			BundleID:     manifest.BundleID,
-			CaseID:       manifest.CaseID,
 			Hostname:     manifest.TargetHost.Hostname,
 			RelativePath: entry.Name(),
 			CollectedAt:  manifest.CollectedAt,
@@ -352,8 +351,8 @@ func (i *Importer) importCase(ctx context.Context, importID int64, batchID, stag
 	casePK, err := i.Store.InsertCase(ctx, storesqlite.CaseRecord{
 		CaseUUID:           caseUUID,
 		ImportID:           importID,
-		CaseID:             analystCaseID(manifest, caseRef, opts),
-		CollectionCaseID:   manifest.CaseID,
+		CaseID:             analystCaseID(manifest, opts),
+		CollectionCaseID:   manifest.BundleID,
 		BatchID:            batchID,
 		Hostname:           manifest.TargetHost.Hostname,
 		AssetLabel:         manifest.TargetHost.Hostname,
@@ -438,13 +437,13 @@ type IntegritySummary struct {
 
 func verifyCaseIntegrity(caseDir string, manifest BundleManifest) IntegritySummary {
 	summary := IntegritySummary{
-		ManifestValid:     manifest.BundleID != "" && manifest.CaseID != "" && manifest.BatchID != "",
+		ManifestValid:     manifest.BundleID != "" && manifest.BatchID != "",
 		WarningsCount:     manifest.Summary.Warnings,
 		ErrorsCount:       manifest.Summary.Errors,
 		ManifestArtifacts: len(manifest.Artifacts),
 		ManifestStatus:    manifest.Summary.Status,
 		BundleID:          manifest.BundleID,
-		CaseID:            manifest.CaseID,
+		CaseID:            manifest.BundleID,
 		BatchID:           manifest.BatchID,
 	}
 
@@ -690,11 +689,8 @@ func splitOSVersion(value string) (string, string) {
 	return strings.TrimSpace(value[:buildIndex]), strings.TrimSpace(value[buildIndex:])
 }
 
-func analystCaseID(manifest BundleManifest, caseRef BatchCaseRef, opts ImportOptions) string {
+func analystCaseID(manifest BundleManifest, opts ImportOptions) string {
 	if value := strings.TrimSpace(opts.AnalystCaseID); value != "" {
-		return value
-	}
-	if value := strings.TrimSpace(caseRef.CaseID); value != "" && value != manifest.CaseID {
 		return value
 	}
 	if value := strings.TrimSpace(manifest.TargetHost.Hostname); value != "" {

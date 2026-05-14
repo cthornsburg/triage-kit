@@ -9,7 +9,6 @@ type CollectorBundleManifest struct {
 	SchemaVersion string           `json:"schema_version"`
 	BundleID      string           `json:"bundle_id"`
 	BatchID       string           `json:"batch_id"`
-	CaseID        string           `json:"case_id"`
 	CollectedAt   time.Time        `json:"collected_at"`
 	Collector     CollectorInfo    `json:"collector"`
 	Operator      OperatorInfo     `json:"operator"`

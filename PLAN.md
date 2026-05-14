@@ -182,8 +182,10 @@ Reference status: `docs/thoth-implementation-status.md`
 
 #### Immediate / near-term
 
-- move analyst-facing case ID creation into Thoth ingest instead of SEKER metadata
-- add an ingest-time fillable case-ID field in Thoth so the analyst can assign/override the case identifier during intake
+- move analyst-facing Case ID creation fully into Thoth ingest; Thoth should not require SEKER `case_id` in incoming manifests
+- add an ingest-time fillable Case ID field in Thoth so the analyst can assign/override the case identifier during intake
+- store SEKER `bundle_id` as the collection identity / Collection ID, separate from the analyst-facing Thoth Case ID
+- keep duplicate-ingest protection keyed on stable SEKER collection identity, preferably `batch_id` + `bundle_id`, not human case labels
 - remove the current editable case-label field from the primary case page once ingest-time Case ID entry exists
 - continue improving findings evidence display beyond the current partial implementation, where current rule-engine findings link to PowerShell 4104 filtered logs, exact scheduled-task anchors, and exact Persistence records
 - continue improving normalized artifact-set source clarity beyond the current collected-source links, where bundle-relative paths like `logs/system-events.txt` link to a collected-source preview page
@@ -222,28 +224,36 @@ Reference status: `docs/thoth-implementation-status.md`
 
 ### SEKER backlog
 
-#### Immediate / near-term
+#### Implemented in current SEKER/Thoth ingest path; keep for regression validation
 
-- remove the current collector-side default/fallback `case_id` requirement from SEKER metadata and manifests
-- implement file triage collection
-- implement security posture collection/signals, including a quick no-admin Windows Defender and Windows Firewall posture artifact for Host Overview: prefer `Get-MpComputerStatus` fields such as `AMServiceEnabled`, `AntivirusEnabled`, `RealTimeProtectionEnabled`, signature versions/dates, with `WinDefend` service status as fallback/context; collect `netsh advfirewall show allprofiles` for Domain/Private/Public firewall ON/OFF state and default inbound/outbound policy
-- implement installed-program/software inventory collection using no-admin registry uninstall keys first (`HKLM` 64-bit, `HKLM` WOW6432Node, and `HKCU` uninstall paths); capture display name, publisher, version, install date/source/location, uninstall string when readable, and note limitations for portable apps, Store/UWP apps, and unreliable install dates
-- implement fuller device inventory collection, including currently connected USB/removable storage and readable USB/PnP device indicators for Host Overview; collect drive letter/mount point, volume label, filesystem, size/free space, bus/interface/removable classification where available, PnP friendly name/device ID/manufacturer/status where readable, and avoid brittle forensic parsing that requires admin or fragile registry assumptions
-- implement baseline previous-USB-device collection for Host Overview using readable source-backed evidence first: collect `HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR`, `HKLM\SYSTEM\CurrentControlSet\Enum\USB`, `HKLM\SYSTEM\MountedDevices`, and readable USB/storage PnP output; lightly parse device/vendor/product/serial-ish ID, friendly name, source registry path, and mounted volume/drive mapping when available; label confidence as `current`, `previously seen`, or `volume mapping observed`
+- public SEKER CLI cleanup: removed `--case-id`, removed `CaseID` config path, removed `--dry-run`, and removed dry-run behavior
+- SEKER now generates `batch_id` by default when one is not supplied, while preserving optional operator-supplied batch grouping
+- SEKER manifest/batch schemas no longer require collector-side `case_id`; `bundle_id` is the SEKER collection identity
+- Thoth ingest no longer requires SEKER `case_id`; it stores SEKER `bundle_id` as Collection ID and keeps duplicate ingest protection on `batch_id` + `bundle_id`
+- security posture collection/signals: Windows Firewall via `netsh advfirewall show allprofiles`, Defender posture via `Get-MpComputerStatus`, `WinDefend` fallback, and security-tool hints from process/service names
+- installed-program/software inventory from no-admin registry uninstall keys (`HKLM` 64-bit, `HKLM` WOW6432Node, and `HKCU`), including install-date reliability labels and source path metadata
+- fuller device/removable-media inventory: volumes, PnP/storage summaries, current USB/removable media, readable bus/interface clues, and confidence labels
+- baseline previous-USB-device collection from readable source-backed evidence: `HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR`, `HKLM\SYSTEM\CurrentControlSet\Enum\USB`, and `HKLM\SYSTEM\MountedDevices`; no complete first/last-seen timeline is claimed
+- boot time / uptime and host/session enrichment in `host/identity.json`, with source/confidence and Thoth Host Overview display
+- richer process detail after log capture via CIM/WMI-backed `processes/process-details.csv`, including PID, PPID, process name, executable path, command line, and owner where readable, with `tasklist /fo csv /v` fallback
+- Wi-Fi context collection via `netsh wlan show interfaces` and profile-name/metadata collection via `netsh wlan show profiles`, without key material
+- Bluetooth context collection via readable PnP Bluetooth device/connected-device output; not a forensic pairing timeline
+- virtual/container/VM/VPN adapter hints in Thoth network normalization from captured Windows network configuration
+- SEKER/Thoth docs and UI labels use: Case ID = Thoth analyst-facing ID, Collection ID = SEKER `bundle_id`, Batch ID = SEKER grouping ID
+
+#### Remaining / deferred
+
+- keep user-space file triage deferred to SEKER v2.0; do not add it to the pre-push baseline
 - defer richer USB timeline reconstruction to a later enrichment pass using `setupapi.dev.log`, device properties, ContainerID/ClassGUID, and user MountPoints2 where readable; do not overclaim first/last-seen timestamps in baseline mode
-- collect boot time / uptime where readable in baseline SEKER output
-- extend process collection/schema to capture executable path and command-line context where readable
-- add Wi-Fi context collection where readable (for example current SSID/BSSID, adapter state, and saved profile metadata when safely available), then surface it on the Thoth network configuration details page alongside adapter/IP context
-- add Bluetooth context collection where readable (for example adapter state, paired devices, and recent device indicators when safely available), then surface it on the Thoth network configuration details page alongside adapter/IP context
-- ensure network configuration details clearly identify virtual/container/VM adapters when visible through Windows networking output (for example Hyper-V, WSL, Docker, VMware, VirtualBox, VPN, Npcap/loopback), with review hints so analysts do not confuse virtual/local-only interfaces with primary routed adapters
-- extend SEKER process collection beyond `tasklist /fo csv /v` to capture executable path, command line, and parent process ID where readable, likely via WMI/CIM (`Win32_Process` / `Get-CimInstance`) with graceful fallback when no-admin permissions limit fields
-- clean up remaining metadata rough edges around fallback `case_id`, username, and domain fields
 
 ### Identity / dedupe decision
 
-- Thoth should own the analyst-facing case ID
-- SEKER does not need to be the source of truth for analyst case IDs
-- ingest should support a fillable analyst case-ID field at intake time
+- Thoth should own the analyst-facing Case ID
+- SEKER does not expose an operator-facing `--case-id` path in the public baseline collector
+- SEKER emits stable collection identity via `bundle_id`; collector-side `case_id` has been removed from the public schema/manifest contract
+- SEKER keeps/generates `batch_id` for media/run grouping
+- SEKER dry-run/debug collection mode has been removed from the public collector path
+- ingest supports a fillable analyst Case ID field at intake time
 - dedupe should continue to prefer stable collection/bundle identity rather than a reused human-facing case ID
 - hostname + collection time is useful collection context and a secondary correlation signal, but should not replace stable bundle identity where that identity already exists
 

@@ -28,9 +28,8 @@ This slice now includes:
 - real persistence collection into `persistence/` for Windows-first current-user autoruns, startup-folder inventory, and scheduled-task inventory
 - real readable log collection into `logs/` for Windows-first event-log slices
 - collector metadata outputs: `collector-log.txt`, `errors.json`, `hashes.sha256`
-- `--dry-run` flag, which currently keeps the collector in debug mode but still exercises the same code paths locally
 
-File triage, security posture, and device inventory are still stubbed/not implemented.
+File triage is deferred to SEKER v2.0. Security posture, software inventory, and device/removable-media inventory are implemented in the current Windows-first baseline.
 
 ## Layout
 
@@ -62,22 +61,9 @@ Local macOS/Linux runs are useful for plumbing checks only:
 ```bash
 go run ./cmd/seker \
   --output-dir ../samples/local-dev-output \
-  --batch-id batch-local-dev-01 \
   --hostname WS-LOCAL \
   --operator-id dev-operator \
   --media-label USB-LOCAL
-```
-
-Optional debug label:
-
-```bash
-go run ./cmd/seker \
-  --dry-run \
-  --output-dir ../samples/local-dev-output \
-  --batch-id batch-local-dev-01 \
-  --hostname WS-LOCAL \
-  --operator-id dev-operator \
-  --media-label USB-DRY-RUN
 ```
 
 ## Expected Windows-first output shape
