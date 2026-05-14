@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/incident-response-kit/schema/artifact-record.schema.json",
+  "title": "Artifact Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_id",
+    "category",
+    "relative_path",
+    "format",
+    "sha256",
+    "size_bytes",
+    "collected_at",
+    "collector_status"
+  ],
+  "properties": {
+    "artifact_id": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": [
+        "host",
+        "processes",
+        "network",
+        "persistence",
+        "files",
+        "security",
+        "logs",
+        "devices",
+        "operator",
+        "meta"
+      ]
+    },
+    "relative_path": { "type": "string" },
+    "format": {
+      "type": "string",
+      "enum": ["txt", "csv", "json", "ndjson", "tsv", "xml", "bin"]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "size_bytes": { "type": "integer", "minimum": 0 },
+    "source_command": { "type": ["string", "null"] },
+    "collection_scope": {
+      "type": "string",
+      "enum": ["user", "system-readable", "best-effort"]
+    },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "collector_status": {
+      "type": "string",
+      "enum": ["ok", "partial", "error", "skipped"]
+    },
+    "error": { "type": ["string", "null"] },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -1,0 +1,16 @@
+.venv/
+.DS_Store
+*.tmp
+
+# Local build outputs
+collector/bin/
+collector/seker
+collector/usbtriage
+collector/*.exe
+
+# Local Thoth/runtime data
+hub/data/
+hub/tmp/
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,114 @@
+{
+  "schema_version": "0.1.0",
+  "bundle_id": "bundle-ws23-20260509-140500z",
+  "batch_id": "batch-2026-05-09-01",
+  "case_id": "CASE-2026-0509-001",
+  "collected_at": "2026-05-09T14:05:00Z",
+  "collector": {
+    "name": "SEKER",
+    "version": "0.1.0-draft",
+    "mode": "no-admin-baseline",
+    "usb_serial": "USB-IR-0001"
+  },
+  "operator": {
+    "operator_id": "op-jdoe",
+    "notes": "User reported pop-ups and slow performance."
+  },
+  "target_host": {
+    "hostname": "WS-23",
+    "username": "CITY\\asmith",
+    "domain": "CITY",
+    "os_family": "windows",
+    "os_version": "Windows 11 Enterprise 23H2",
+    "architecture": "x64",
+    "timezone": "America/Chicago",
+    "boot_time": "2026-05-09T11:28:00Z"
+  },
+  "profile": {
+    "name": "baseline-windows",
+    "artifact_policy_version": "2026-05-09-draft1"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "host-identity",
+      "category": "host",
+      "relative_path": "host/identity.json",
+      "format": "json",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size_bytes": 1248,
+      "source_command": "systeminfo",
+      "collection_scope": "system-readable",
+      "collected_at": "2026-05-09T14:05:12Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": [],
+      "tags": ["identity", "host"]
+    },
+    {
+      "artifact_id": "process-list",
+      "category": "processes",
+      "relative_path": "processes/process-list.csv",
+      "format": "csv",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size_bytes": 9120,
+      "source_command": "tasklist /v",
+      "collection_scope": "system-readable",
+      "collected_at": "2026-05-09T14:05:20Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": ["Command-line detail not available in this sample artifact."],
+      "tags": ["process", "execution"]
+    },
+    {
+      "artifact_id": "net-connections",
+      "category": "network",
+      "relative_path": "network/net-connections.csv",
+      "format": "csv",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size_bytes": 4012,
+      "source_command": "netstat -ano",
+      "collection_scope": "system-readable",
+      "collected_at": "2026-05-09T14:05:27Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": [],
+      "tags": ["network", "connections"]
+    },
+    {
+      "artifact_id": "hkcu-run",
+      "category": "persistence",
+      "relative_path": "persistence/hkcu-run.json",
+      "format": "json",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "size_bytes": 778,
+      "source_command": "reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+      "collection_scope": "user",
+      "collected_at": "2026-05-09T14:05:35Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": [],
+      "tags": ["persistence", "autorun"]
+    },
+    {
+      "artifact_id": "powershell-operational",
+      "category": "logs",
+      "relative_path": "logs/powershell-operational.txt",
+      "format": "txt",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "size_bytes": 5210,
+      "source_command": "wevtutil qe Microsoft-Windows-PowerShell/Operational /c:100 /rd:true /f:text",
+      "collection_scope": "best-effort",
+      "collected_at": "2026-05-09T14:05:46Z",
+      "collector_status": "partial",
+      "error": null,
+      "notes": ["Collected subset only."],
+      "tags": ["logs", "powershell"]
+    }
+  ],
+  "summary": {
+    "artifact_count": 5,
+    "errors": 0,
+    "warnings": 1,
+    "status": "ok"
+  }
+}

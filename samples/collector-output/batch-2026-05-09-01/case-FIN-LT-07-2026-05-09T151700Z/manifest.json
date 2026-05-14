@@ -1,0 +1,99 @@
+{
+  "schema_version": "0.1.0",
+  "bundle_id": "bundle-finlt07-20260509-151700z",
+  "batch_id": "batch-2026-05-09-01",
+  "case_id": "CASE-2026-0509-002",
+  "collected_at": "2026-05-09T15:17:00Z",
+  "collector": {
+    "name": "SEKER",
+    "version": "0.1.0-draft",
+    "mode": "no-admin-baseline",
+    "usb_serial": "USB-IR-0001"
+  },
+  "operator": {
+    "operator_id": "op-jdoe",
+    "notes": "Finance laptop was offline; user reported suspicious browser tab and credential prompt."
+  },
+  "target_host": {
+    "hostname": "FIN-LT-07",
+    "username": "CITY\\mlopez",
+    "domain": "CITY",
+    "os_family": "windows",
+    "os_version": "Windows 10 Enterprise 22H2",
+    "architecture": "x64",
+    "timezone": "America/Chicago",
+    "boot_time": "2026-05-09T12:42:00Z"
+  },
+  "profile": {
+    "name": "baseline-windows",
+    "artifact_policy_version": "2026-05-09-draft1"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "host-identity",
+      "category": "host",
+      "relative_path": "host/identity.json",
+      "format": "json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size_bytes": 1219,
+      "source_command": "systeminfo",
+      "collection_scope": "system-readable",
+      "collected_at": "2026-05-09T15:17:10Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": [],
+      "tags": ["identity", "host"]
+    },
+    {
+      "artifact_id": "browser-extensions",
+      "category": "files",
+      "relative_path": "files/browser-extensions.json",
+      "format": "json",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "size_bytes": 2544,
+      "source_command": null,
+      "collection_scope": "user",
+      "collected_at": "2026-05-09T15:17:26Z",
+      "collector_status": "ok",
+      "error": null,
+      "notes": ["Collected from readable profile manifests only."],
+      "tags": ["browser", "extensions"]
+    },
+    {
+      "artifact_id": "scheduled-tasks",
+      "category": "persistence",
+      "relative_path": "persistence/scheduled-tasks.csv",
+      "format": "csv",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "size_bytes": 6800,
+      "source_command": "schtasks /query /fo csv /v",
+      "collection_scope": "system-readable",
+      "collected_at": "2026-05-09T15:17:39Z",
+      "collector_status": "partial",
+      "error": null,
+      "notes": ["Some task actions were not readable in this context."],
+      "tags": ["tasks", "persistence"]
+    },
+    {
+      "artifact_id": "defender-events",
+      "category": "security",
+      "relative_path": "security/defender-readable-events.txt",
+      "format": "txt",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "size_bytes": 0,
+      "source_command": "wevtutil qe Microsoft-Windows-Windows Defender/Operational /c:50 /rd:true /f:text",
+      "collection_scope": "best-effort",
+      "collected_at": "2026-05-09T15:17:52Z",
+      "collector_status": "error",
+      "error": "Access denied or log unavailable",
+      "notes": [],
+      "tags": ["defender", "logs"]
+    }
+  ],
+  "summary": {
+    "artifact_count": 4,
+    "errors": 1,
+    "warnings": 1,
+    "status": "partial"
+  }
+}

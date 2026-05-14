@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/incident-response-kit/schema/batch-manifest.schema.json",
+  "title": "Batch Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "batch_id",
+    "created_at",
+    "collector_version",
+    "media_label",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "batch_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "closed_at": { "type": ["string", "null"], "format": "date-time" },
+    "collector_version": { "type": "string" },
+    "media_label": { "type": "string" },
+    "operator_id": { "type": ["string", "null"] },
+    "notes": { "type": ["string", "null"] },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bundle_id", "case_id", "hostname", "relative_path", "collected_at", "status"],
+        "properties": {
+          "bundle_id": { "type": "string" },
+          "case_id": { "type": "string" },
+          "hostname": { "type": "string" },
+          "relative_path": { "type": "string" },
+          "collected_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["ok", "partial", "failed"] }
+        }
+      }
+    }
+  }
+}
