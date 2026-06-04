@@ -298,9 +298,13 @@ Not part of the first cut, but intentionally designed for:
 12. cross-case search/correlation
 13. platform helpers and VM-friendly enrichment actions
 
-Implementation history and release status are tracked in `docs/thoth-implementation-status.md` and `PROJECT_MAP.md`.
+Execution queue for Geo-driven implementation: `docs/thoth-geo-task-queue.md`
 
 ### Immediate Thoth priorities
+
+Pre-push / release-gate item:
+
+- package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
 
 1. move analyst-facing case ID creation into Thoth ingest and add a fillable ingest-time case-ID field
 2. remove the current editable case-label field from the primary case page once ingest-time Case ID entry exists

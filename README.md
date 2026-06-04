@@ -63,6 +63,7 @@ Preferred install shape:
 - `docs/` — architecture and planning
 - `packaging/` — USB and hub packaging/release helpers
 - `samples/` — example collector output and test cases
+- `releases/` — intentional, checksummed SEKER binaries and validation notes for student/lab testing
 - `notes/` — working notes and decision log
 
 ## Important constraint
@@ -102,6 +103,7 @@ That means the first release should be honest: **rapid triage collector**, not f
 - unattended launch notes: `docs/unattended-launch-notes.md`
 - Thoth build plan: `docs/thoth-build-plan.md`
 - platform feature backlog: `docs/platform-feature-backlog.md`
+- Thoth Geo task queue: `docs/thoth-geo-task-queue.md`
 - Thoth quick start: `docs/thoth-quick-start.md`
 - Thoth user guide: `docs/thoth-user-guide.md`
 - Thoth ingest contract checklist: `docs/thoth-ingest-contract-checklist.md`
@@ -116,3 +118,5 @@ That means the first release should be honest: **rapid triage collector**, not f
 - schema drafts: `shared/schema/`
 - sample manifest validator: `scripts/validate_sample_manifests.py`
 - dev deps: `requirements-dev.txt`
+- student onboarding: `docs/student-onboarding.md`
+- capstone project tracks: `docs/capstone-projects.md`

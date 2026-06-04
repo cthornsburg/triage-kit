@@ -20,3 +20,6 @@ hub/tmp/
 
 # Local rollback guardrail snapshots
 rollback/
+
+# Local release rollback/archive staging
+releases/**/archive/

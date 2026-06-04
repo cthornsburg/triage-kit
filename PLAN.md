@@ -180,6 +180,10 @@ Reference status: `docs/thoth-implementation-status.md`
 
 ### Thoth backlog
 
+#### Pre-push / release-gate items
+
+- package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
+
 #### Immediate / near-term
 
 - move analyst-facing Case ID creation fully into Thoth ingest; Thoth should not require SEKER `case_id` in incoming manifests

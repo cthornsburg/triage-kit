@@ -1,62 +1,123 @@
 # PROJECT_MAP.md
 
 - **Project:** Incident Response Kit
-- **Status:** active prototype / SEKER 1.0 release-candidate staging
-- **Audience:** maintainers, contributors, and public-sector security practitioners
+- **Status:** active prototype / student-collaboration preparation
+- **Audience:** maintainers, student contributors, instructors, and public-sector security practitioners
 
 ## Purpose
 
 Incident Response Kit is a two-tier incident-response toolkit:
 
 1. **SEKER** — a low-touch Windows-first triage collector intended to run from removable media.
-2. **Thoth** — an analyst review hub for ingesting SEKER bundles, normalizing artifacts, and reviewing findings.
+2. **Thoth** — an analyst review hub for ingesting SEKER bundles, normalizing artifacts, reviewing findings, and preparing reports.
 
-## Start here
+The project is intended for rapid triage and teaching/research workflows, not full forensic acquisition.
 
-- `README.md` — project overview and design constraints
+## Start Here
+
+- `README.md` — project overview, naming, scope, and constraints
+- `CONTRIBUTING.md` — contribution workflow and safety expectations
+- `SECURITY.md` — how to report sensitive data or collection-scope concerns
+- `docs/github-push-student-collab-roadmap.md` — roadmap for GitHub readiness and capstone collaboration
+- `docs/student-onboarding.md` — setup and contribution guide for students
+- `docs/capstone-projects.md` — suggested capstone tracks and starter work
 - `collector/README.md` — SEKER collector notes
 - `hub/README.md` — Thoth ingest/review notes
 - `docs/thoth-quick-start.md` — shortest operator path from SEKER media to Thoth review
 - `docs/thoth-user-guide.md` — analyst guide and artifact-review workflow
 - `docs/thoth-implementation-status.md` — current implemented state
-- `docs/seker-next-iteration-plan.md` — SEKER collection roadmap
+- `docs/seker-next-iteration-plan.md` — SEKER baseline status and roadmap
 - `shared/contracts/bundle-layout.md` — collector-to-hub bundle contract
 - `shared/schema/` — schema drafts
 
-## Main areas
+## Source of Truth
+
+- architecture decisions: `docs/architecture.md`
+- SEKER artifact scope: `docs/v1-artifact-list.md` and `docs/seker-next-iteration-plan.md`
+- Thoth implementation status: `docs/thoth-implementation-status.md`
+- Thoth build sequence: `docs/thoth-build-plan.md`
+- student/public push readiness: `docs/github-push-student-collab-roadmap.md`
+- student onboarding and capstone tracks: `docs/student-onboarding.md` and `docs/capstone-projects.md`
+- active backlog: `PLAN.md`, `docs/thoth-implementation-status.md`, `docs/thoth-geo-task-queue.md`, and `docs/seker-geo-task-queue.md`
+- low-token/small-slice implementation queue: `docs/thoth-low-token-priority.md`
+- bundle layout and schemas: `shared/contracts/bundle-layout.md` and `shared/schema/`
+
+## Main Areas
 
 - `collector/` — endpoint-side SEKER collector code
-- `hub/` — Thoth ingest, normalization, review API, and review CLI
+- `hub/` — Thoth ingest, normalization, review API, review CLI, and local UI
 - `shared/` — schemas and bundle contracts
-- `docs/` — architecture, workflows, and operator guidance
-- `packaging/` — packaging/release notes
+- `docs/` — architecture, workflows, roadmaps, and operator guidance
+- `packaging/` — packaging/release planning
 - `samples/` — synthetic/redacted examples only
-- `releases/` — current release-candidate metadata and binaries, when intentionally staged
+- `releases/` — intentional, checksummed release binaries and validation notes for student/lab testing
+- `notes/` — non-sensitive backlog notes
+- `.github/` — issue and pull request templates
 
-## Working assumptions
+## Common Commands
 
-- SEKER baseline should run from removable media with no installation.
-- SEKER baseline should not require administrator privileges.
-- Analysis should happen off-host in Thoth.
-- Collection scope must stay honest: rapid triage, not full forensic acquisition.
-- Real case data, secrets, private IPs, and unredacted endpoint artifacts do not belong in this public repo.
-
-## Common commands
+Collector tests:
 
 ```bash
-cd collector && go test ./...
-cd hub && go test ./...
+cd collector
+go test ./...
 ```
 
-Build a Windows SEKER release candidate and archive any existing Desktop copy:
+Hub tests:
 
 ```bash
-./scripts/build-seker-release.sh 1.0 rc1
+cd hub
+go test ./...
 ```
 
-## Common traps
+Sample schema validation:
+
+```bash
+python3 scripts/validate_sample_manifests.py
+```
+
+Thoth local prototype:
+
+```bash
+cd hub
+go run ./cmd/review-api
+```
+
+## Current Backlog Emphasis
+
+- GitHub readiness: reconcile source, remove unintended generated/runtime artifacts, and tighten public docs.
+- Capstone readiness: add student onboarding docs, issue templates, scoped starter issues, and review checklists.
+- Thoth next-up: notes/disposition UI, report export, suppressions/rule controls, dashboarding, and portable packaging.
+- SEKER next-up: Windows no-admin validation and release documentation for the 1.0 baseline.
+- Later: Windows Server coverage, optional elevated collection mode, memory-capture-aware workflows, cross-case search, and richer schema design.
+
+## Safety Rules
 
 - Do not promise forensic-complete collection without elevation.
-- Do not couple the collector to network/cloud dependencies.
-- Do not let analyst-centric complexity leak into the low-skill collector UX.
-- Do not commit generated runtime data, real bundles, credentials, or unredacted endpoint artifacts.
+- Do not collect credentials, browser history, memory, broad user-file content, or elevated-only artifacts without explicit design review.
+- Do not commit generated runtime data, real bundles, credentials, private IPs, or unredacted endpoint artifacts.
+- Only commit binaries under `releases/` when they are intentional, checksummed, and documented for lab/student use.
+- Keep SEKER baseline no-install and no-admin unless a maintainer explicitly approves a separate design path.
+- Keep analyst-centric complexity in Thoth; do not leak it into the low-skill collector UX.
+
+## Student Contribution Fit
+
+Good student work:
+
+- tests and validation harnesses
+- synthetic sample bundles
+- Thoth UI workflow improvements
+- report export
+- findings quality and explainability
+- documentation, onboarding, and diagrams
+- packaging scripts and operator checklists
+
+Design-review work:
+
+- expanded collection scope
+- elevated collection
+- memory capture
+- browser data
+- credential-related handling
+- broad user-file triage
+- evidence-handling semantics

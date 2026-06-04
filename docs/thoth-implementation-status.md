@@ -252,6 +252,10 @@ go run ./cmd/review-api
 
 ### Thoth
 
+#### Pre-push / release-gate items
+
+- package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
+
 #### Active next-up
 
 - move analyst-facing case ID creation into Thoth ingest and add a fillable ingest-time case-ID field

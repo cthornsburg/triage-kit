@@ -29,8 +29,10 @@ Thanks for helping improve **Incident Response Kit**.
 1. Fork the repo.
 2. Create a branch.
 3. Run relevant tests:
+   - `scripts/check.sh`
    - `cd collector && go test ./...`
    - `cd hub && go test ./...`
+   - `python3 scripts/validate_sample_manifests.py`
 4. Open a PR describing:
    - What changed
    - Why it helps
@@ -40,4 +42,11 @@ Thanks for helping improve **Incident Response Kit**.
 ## Style
 
 - Write for practitioners: clear headings, checklists, and explicit assumptions.
-- Keep generated/runtime artifacts out of commits unless they are intentionally redacted samples.
+- Keep generated/runtime artifacts out of commits unless they are intentionally redacted samples or documented, checksummed release artifacts under `releases/`.
+
+## Student contributors
+
+- Start with `docs/student-onboarding.md`.
+- Use `docs/capstone-projects.md` to pick a scoped track.
+- Prefer issues labeled `good first issue`, `capstone`, or your assigned project track.
+- Ask for design review before changing collection scope or evidence handling.
