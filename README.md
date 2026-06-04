@@ -7,20 +7,9 @@ Two-tier incident response tooling concept to complement the playbooks and TTX w
 - **SEKER** = endpoint-side Windows-first collector
 - **Thoth** = analyst review / ingest hub
 
-> Note: legacy `isis-*` filenames have been retired; active content and current naming use **Thoth**.
-
 ## Goal
 
 Make first-touch triage easy enough for lightly trained staff while preserving enough structure for a stronger central review workflow.
-
-## Recommendation
-
-Do **not** pull in OpenCode right now.
-
-Reason:
-- this project does not need an agent framework dependency to get started
-- the collector side should stay boring, portable, and auditable
-- the harder design work is workflow, packaging, evidence boundaries, and review UX
 
 ## Proposed shape
 
