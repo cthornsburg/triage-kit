@@ -2,7 +2,9 @@
 import json
 from pathlib import Path
 
-from jsonschema import Draft202012Validator, RefResolver
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT202012
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "shared" / "schema"
@@ -23,18 +25,19 @@ def main() -> int:
     bundle_schema = load_json(bundle_schema_path)
     batch_schema = load_json(batch_schema_path)
 
-    resolver = RefResolver.from_schema(
-        bundle_schema,
-        store={
-            artifact_schema.get("$id"): artifact_schema,
-            str(artifact_schema_path): artifact_schema,
-            f"file://{artifact_schema_path}": artifact_schema,
-            "./artifact-record.schema.json": artifact_schema,
-        },
+    artifact_resource = Resource.from_contents(
+        artifact_schema,
+        default_specification=DRAFT202012,
+    )
+    registry = Registry().with_resources(
+        [
+            ("./artifact-record.schema.json", artifact_resource),
+            (artifact_schema["$id"], artifact_resource),
+        ]
     )
 
-    bundle_validator = Draft202012Validator(bundle_schema, resolver=resolver)
-    batch_validator = Draft202012Validator(batch_schema)
+    bundle_validator = Draft202012Validator(bundle_schema, registry=registry)
+    batch_validator = Draft202012Validator(batch_schema, registry=registry)
 
     batch_manifest = SAMPLE_DIR / "batch-manifest.json"
     batch_validator.validate(load_json(batch_manifest))
