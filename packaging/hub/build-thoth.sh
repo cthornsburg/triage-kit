@@ -97,6 +97,20 @@ write_readme() {
 This is a Thoth preview package for local analyst review and public testing.
 It is not a finished 1.0 release.
 
+### Disclaimer
+
+SEKER and Thoth are educational and research projects developed for instructional use, laboratory exercises, and rapid incident-triage workflows. These tools are intended to assist with preliminary system assessment and are not designed to replace professional incident response, digital forensics, or comprehensive evidence acquisition procedures.
+
+Use these tools only on systems that you own, administer, or are explicitly authorized to assess. Users are responsible for ensuring compliance with applicable laws, organizational policies, and ethical standards.
+
+Because SEKER emphasizes lightweight, no-install collection and operation without administrative privileges, some artifacts may be incomplete, unavailable, or unsuitable for evidentiary purposes. Data collected by SEKER should not be considered a complete forensic record.
+
+For instructional activities, use synthetic, anonymized, or otherwise approved datasets whenever possible. Do not collect, share, store, or publish credentials, personal information, proprietary data, or other sensitive artifacts without proper authorization.
+
+SEKER output should be treated as untrusted input. Thoth and any associated analysis components should be operated in a controlled environment, such as an isolated workstation or virtual machine, particularly when used for testing, research, or classroom activities.
+
+The authors and sponsoring institution provide these tools "as is" without warranty and assume no responsibility for misuse, data loss, operational disruption, or legal consequences arising from their use.
+
 ## Start the UI
 
 \`\`\`bash
