@@ -146,12 +146,8 @@ They currently help verify:
 
 They do **not** count as production validation for the Windows collector.
 
-## Still stubbed / not implemented
+## Deferred to SEKER v2.0
 
-- security tooling posture
-- device inventory beyond empty directory creation
-
-Deferred to SEKER v2.0:
 - suspicious file triage
 
 ## Locked next-iteration run order

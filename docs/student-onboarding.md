@@ -53,6 +53,10 @@ That command runs:
 
 ## Run SEKER Locally
 
+For the Windows student/operator workflow, start with:
+
+- `docs/seker-operator-quick-start.md`
+
 Local macOS/Linux SEKER runs are developer harness checks only. They do not validate the Windows collector promise.
 
 ```bash
@@ -63,6 +67,10 @@ go run ./cmd/seker --output-dir ../samples/local-dev-output --hostname WS-LOCAL 
 Do not commit generated `samples/local-dev-output` artifacts unless a maintainer explicitly asks for a synthetic sample update.
 
 ## Run Thoth Locally
+
+For the analyst workflow, start with:
+
+- `docs/thoth-analyst-quick-start.md`
 
 Start the local review UI:
 
@@ -127,5 +135,7 @@ Anything that expands collection scope needs design review before implementation
 - `CONTRIBUTING.md`
 - `docs/capstone-projects.md`
 - `docs/github-push-student-collab-roadmap.md`
+- `docs/seker-operator-quick-start.md`
+- `docs/thoth-analyst-quick-start.md`
 - `docs/thoth-quick-start.md`
 - `docs/thoth-user-guide.md`

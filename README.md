@@ -93,6 +93,8 @@ That means the first release should be honest: **rapid triage collector**, not f
 - Thoth build plan: `docs/thoth-build-plan.md`
 - platform feature backlog: `docs/platform-feature-backlog.md`
 - Thoth Geo task queue: `docs/thoth-geo-task-queue.md`
+- SEKER operator quick start: `docs/seker-operator-quick-start.md`
+- Thoth analyst quick start: `docs/thoth-analyst-quick-start.md`
 - Thoth quick start: `docs/thoth-quick-start.md`
 - Thoth user guide: `docs/thoth-user-guide.md`
 - Thoth ingest contract checklist: `docs/thoth-ingest-contract-checklist.md`

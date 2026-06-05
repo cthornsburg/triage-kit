@@ -2,6 +2,8 @@
 
 This is the fast path for an analyst using **Thoth** to ingest and review **SEKER** collections locally.
 
+For the shortest student-facing checklist, start with `docs/thoth-analyst-quick-start.md`. This file keeps a little more implementation context for maintainers and pipeline testing.
+
 ## What Thoth does right now
 
 Current working flow:
@@ -214,9 +216,7 @@ data/
 - `exports/` = analyst-ready output bundles
 - `tmp/` = transient working files
 
-Current code note:
-
-- the live dev build still uses `hub/thoth-data/` as its runtime path today
+- current dev runs launch from `hub/`, and mutable runtime state is created under `hub/data/`
 - this document now defines the intended portable install layout we should converge toward
 
 ## Current limitations

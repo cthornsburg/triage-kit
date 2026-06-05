@@ -23,6 +23,8 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/capstone-projects.md` — suggested capstone tracks and starter work
 - `collector/README.md` — SEKER collector notes
 - `hub/README.md` — Thoth ingest/review notes
+- `docs/seker-operator-quick-start.md` — shortest path for running SEKER in a Windows lab
+- `docs/thoth-analyst-quick-start.md` — shortest path for ingesting and reviewing a SEKER bundle
 - `docs/thoth-quick-start.md` — shortest operator path from SEKER media to Thoth review
 - `docs/thoth-user-guide.md` — analyst guide and artifact-review workflow
 - `docs/thoth-implementation-status.md` — current implemented state
@@ -37,7 +39,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - Thoth implementation status: `docs/thoth-implementation-status.md`
 - Thoth build sequence: `docs/thoth-build-plan.md`
 - student/public push readiness: `docs/github-push-student-collab-roadmap.md`
-- student onboarding and capstone tracks: `docs/student-onboarding.md` and `docs/capstone-projects.md`
+- student onboarding and capstone tracks: `docs/student-onboarding.md`, `docs/capstone-projects.md`, `docs/seker-operator-quick-start.md`, and `docs/thoth-analyst-quick-start.md`
 - active backlog: `PLAN.md`, `docs/thoth-implementation-status.md`, `docs/thoth-geo-task-queue.md`, and `docs/seker-geo-task-queue.md`
 - low-token/small-slice implementation queue: `docs/thoth-low-token-priority.md`
 - bundle layout and schemas: `shared/contracts/bundle-layout.md` and `shared/schema/`
