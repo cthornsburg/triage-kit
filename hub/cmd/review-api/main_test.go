@@ -122,6 +122,7 @@ func TestDetectMountedSourcesFromRootsFindsMacAndLinuxMounts(t *testing.T) {
 	macSource := filepath.Join(root, "Volumes", "SEKER")
 	linuxSource := filepath.Join(root, "media", "analyst", "SEKER-001")
 	otherSource := filepath.Join(root, "run", "media", "analyst", "NOT-SEKER")
+	mntSource := filepath.Join(root, "mnt", "SEKER-LAB")
 
 	if err := os.MkdirAll(filepath.Join(macSource, "collections"), 0o755); err != nil {
 		t.Fatalf("create mac-style source: %v", err)
@@ -135,14 +136,18 @@ func TestDetectMountedSourcesFromRootsFindsMacAndLinuxMounts(t *testing.T) {
 	if err := os.MkdirAll(otherSource, 0o755); err != nil {
 		t.Fatalf("create non-SEKER source: %v", err)
 	}
+	if err := os.MkdirAll(filepath.Join(mntSource, "collections"), 0o755); err != nil {
+		t.Fatalf("create mnt-style source: %v", err)
+	}
 
 	sources := detectMountedSourcesFromRoots([]string{
 		filepath.Join(root, "Volumes"),
 		filepath.Join(root, "media"),
 		filepath.Join(root, "run", "media"),
+		filepath.Join(root, "mnt"),
 	})
 
-	want := []string{macSource, linuxSource}
+	want := []string{macSource, linuxSource, mntSource}
 	if strings.Join(sources, "\n") != strings.Join(want, "\n") {
 		t.Fatalf("sources mismatch\ngot:\n%s\nwant:\n%s", strings.Join(sources, "\n"), strings.Join(want, "\n"))
 	}

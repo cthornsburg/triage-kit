@@ -155,7 +155,7 @@ Current behavior:
 
 - local-only HTTP UI on `127.0.0.1:8080`
 - home page quick-start link
-- home page mounted-source detection for likely SEKER media under `/Volumes`
+- home page mounted-source detection for likely SEKER media under common macOS and Linux mount roots: `/Volumes`, `/media`, `/run/media`, and `/mnt`
 - home page dropdown selector for detected mounted sources
 - home page ingest action that runs ingest + normalize + findings
 - case list page
