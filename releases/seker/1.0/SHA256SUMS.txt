@@ -1,2 +1,1 @@
 ab024f6636e3e8c6d518d9d363eff2d2cd65cbe61a6ae7a4f7e32c9e7fb2a331  seker.exe
-ab024f6636e3e8c6d518d9d363eff2d2cd65cbe61a6ae7a4f7e32c9e7fb2a331  seker-1.0-rc1.exe

@@ -18,18 +18,18 @@ GOOS=windows GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o ./seker.exe ./c
 ## Release contents
 
 - `seker.exe` — current release candidate copy
-- `seker-1.0-rc1.exe` — immutable RC label copy
 - `SHA256SUMS.txt` — checksum file
 - `VALIDATION.md` — Windows/Thoth validation checklist
-- `archive/` — previous Desktop executables saved before future rebuilds
+
+Immutable or rollback-labeled executable copies are kept in local ignored archive folders, not published in the GitHub release directory.
 
 ## Rollback
 
-Use `seker-1.0-rc1.exe` or the matching `seker.exe` from this folder. Verify with:
+Use the matching `seker.exe` from this folder. Verify with:
 
 ```bash
 shasum -a 256 seker.exe
 cat SHA256SUMS.txt
 ```
 
-If a later build fails validation, copy a known-good exe from `archive/` or this release directory back to the Desktop/USB and rebuild from the matching source commit.
+If a later build fails validation, use a known-good local archived executable or rebuild from the matching source commit before replacing `seker.exe`.
