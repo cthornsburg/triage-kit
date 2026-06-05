@@ -302,9 +302,9 @@ Execution queue for implementation: `docs/thoth-implementation-task-queue.md`
 
 ### Immediate Thoth priorities
 
-Pre-push / release-gate item:
+Public-preview packaging status:
 
-- package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
+- Thoth has a 0.1 preview package with macOS and Linux binaries. The packaged student path is documented in `docs/thoth-linux-vm-setup.md`; `go run` commands remain the source-development path.
 
 1. move analyst-facing case ID creation into Thoth ingest and add a fillable ingest-time case-ID field
 2. remove the current editable case-label field from the primary case page once ingest-time Case ID entry exists

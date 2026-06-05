@@ -111,6 +111,17 @@ http://127.0.0.1:8080
 
 Use synthetic or approved lab SEKER bundles only. Do not use real endpoint data for public validation.
 
+## Included Docs
+
+See \`lib/docs/\` for:
+
+- \`thoth-linux-vm-setup.md\`
+- \`thoth-analyst-quick-start.md\`
+- \`thoth-quick-start.md\`
+- \`thoth-user-guide.md\`
+- \`thoth-platform-notes.md\`
+- \`bundle-layout.md\`
+
 ## Included Binaries
 
 - \`bin/thoth-review-api-<os>-<arch>\`
@@ -213,6 +224,7 @@ build_binaries() {
 copy_docs() {
   mkdir -p "$package_dir/lib/docs"
   cp -p "$repo_root/docs/thoth-analyst-quick-start.md" "$package_dir/lib/docs/"
+  cp -p "$repo_root/docs/thoth-linux-vm-setup.md" "$package_dir/lib/docs/"
   cp -p "$repo_root/docs/thoth-quick-start.md" "$package_dir/lib/docs/"
   cp -p "$repo_root/docs/thoth-user-guide.md" "$package_dir/lib/docs/"
   cp -p "$repo_root/docs/thoth-platform-notes.md" "$package_dir/lib/docs/"

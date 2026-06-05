@@ -1,7 +1,7 @@
 # PROJECT_MAP.md
 
 - **Project:** Incident Response Kit
-- **Status:** active prototype / public collaboration preparation
+- **Status:** active public-preview prototype
 - **Audience:** maintainers, contributors, instructors, learners, and public-sector security practitioners
 
 ## Purpose
@@ -24,6 +24,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `collector/README.md` — SEKER collector notes
 - `hub/README.md` — Thoth ingest/review notes
 - `docs/seker-operator-quick-start.md` — shortest path for running SEKER in a Windows lab
+- `docs/thoth-linux-vm-setup.md` — Linux VM setup path for the packaged Thoth preview
 - `docs/thoth-analyst-quick-start.md` — shortest path for ingesting and reviewing a SEKER bundle
 - `docs/thoth-quick-start.md` — shortest operator path from SEKER media to Thoth review
 - `docs/thoth-user-guide.md` — analyst guide and artifact-review workflow
@@ -31,7 +32,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/seker-next-iteration-plan.md` — SEKER baseline status and roadmap
 - `shared/contracts/bundle-layout.md` — collector-to-hub bundle contract
 - `shared/schema/` — schema drafts
-- `packaging/hub/thoth-0.1-preview-build.md` — proposed preview executable packaging map for Thoth
+- `packaging/hub/thoth-0.1-preview-build.md` — Thoth 0.1 preview package map, platform targets, and validation gate
 
 ## Source of Truth
 
@@ -39,7 +40,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - SEKER artifact scope: `docs/v1-artifact-list.md` and `docs/seker-next-iteration-plan.md`
 - Thoth implementation status: `docs/thoth-implementation-status.md`
 - Thoth build sequence: `docs/thoth-build-plan.md`
-- student/public push readiness: `docs/github-push-student-collab-roadmap.md`
+- public collaboration readiness: `docs/github-push-student-collab-roadmap.md`
 - student onboarding and capstone tracks: `docs/student-onboarding.md`, `docs/capstone-projects.md`, `docs/seker-operator-quick-start.md`, and `docs/thoth-analyst-quick-start.md`
 - active backlog: `PLAN.md`, `docs/thoth-implementation-status.md`, `docs/thoth-implementation-task-queue.md`, and `docs/seker-implementation-task-queue.md`
 - small-slice implementation priority queue: `docs/thoth-implementation-priority.md`
@@ -86,10 +87,16 @@ cd hub
 go run ./cmd/review-api
 ```
 
+Thoth packaged preview:
+
+```bash
+./scripts/run-thoth.sh
+```
+
 ## Current Backlog Emphasis
 
-- GitHub readiness: reconcile source, remove unintended generated/runtime artifacts, and tighten public docs.
-- Capstone readiness: add student onboarding docs, issue templates, scoped starter issues, and review checklists.
+- Public-preview readiness: keep release docs current, avoid committing runtime artifacts, and tighten contributor setup paths.
+- Capstone readiness: keep student onboarding docs, issue templates, scoped starter issues, and review checklists current.
 - Thoth next-up: field triage dashboarding for multi-system onsite review, host decision status, collection completeness warnings, notes/disposition UI, quick triage export, suppressions/rule controls, and portable packaging.
 - SEKER next-up: Windows no-admin validation and release documentation for the 1.0 baseline.
 - Later: Windows Server coverage, optional elevated collection mode, memory-capture-aware workflows, cross-case search, and richer schema design.

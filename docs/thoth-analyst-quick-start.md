@@ -6,14 +6,19 @@ Thoth is a local review hub. It copies SEKER data into its own runtime workspace
 
 ## Before You Start
 
-Install:
+Recommended student setup:
+
+- run Thoth from the packaged preview inside a Linux VM
+- follow `docs/thoth-linux-vm-setup.md`
+
+Source-code development setup:
 
 - Git
 - Go
 - Python 3
 - Python package `jsonschema`
 
-From the repo root, run the project check:
+From the repo root, run the project check when working from source:
 
 ```bash
 scripts/check.sh
@@ -22,6 +27,17 @@ scripts/check.sh
 Use synthetic or authorized lab collections only. Do not ingest real endpoint data into a branch intended for public collaboration.
 
 ## Start Thoth
+
+### Packaged preview path
+
+From the extracted `thoth-0.1-preview` directory:
+
+```bash
+./scripts/doctor-thoth.sh
+./scripts/run-thoth.sh
+```
+
+### Source development path
 
 From the repo root:
 
@@ -36,7 +52,7 @@ Open:
 http://127.0.0.1:8080
 ```
 
-Thoth creates its local runtime data under `hub/data/`.
+The packaged preview stores runtime data under `data/` inside the extracted package. The source development path stores runtime data under `hub/data/`.
 
 ## Ingest A SEKER Collection
 
@@ -53,7 +69,7 @@ Valid source paths include:
 - a copied `collections/` directory
 - a specific batch directory containing `batch-manifest.json`
 
-Example manual source path when Thoth was started from `hub/`:
+Example manual source path when Thoth was started from the source `hub/` directory:
 
 ```text
 ../samples/collector-output/batch-2026-05-09-01
@@ -61,7 +77,7 @@ Example manual source path when Thoth was started from `hub/`:
 
 ## CLI Fallback
 
-Use the CLI path when testing pipeline behavior or debugging ingest:
+Use the source CLI path when testing pipeline behavior or debugging ingest from a development checkout:
 
 ```bash
 cd hub

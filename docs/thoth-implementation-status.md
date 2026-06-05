@@ -275,11 +275,13 @@ go run ./cmd/review-api
 
 ### Thoth
 
-#### Pre-push / release-gate items
+#### Public-preview packaging status
 
-- package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
-- Thoth is not macOS-specific; current web UI/runtime target is macOS or Linux, with Linux VM validation preferred for public preview use
-- proposed Thoth 0.1 preview packaging map lives at `packaging/hub/thoth-0.1-preview-build.md`
+- Thoth has a 0.1 preview package with macOS and Linux binaries for supervised student and contributor testing.
+- The packaged Linux VM setup path is documented in `docs/thoth-linux-vm-setup.md`.
+- `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api` remain source-development and debugging paths.
+- Thoth is not macOS-specific; current web UI/runtime target is macOS or Linux, with Linux VM validation preferred for public preview use.
+- Thoth 0.1 preview packaging details live at `packaging/hub/thoth-0.1-preview-build.md`.
 
 #### Active next-up
 

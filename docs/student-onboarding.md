@@ -70,9 +70,12 @@ Do not commit generated `samples/local-dev-output` artifacts unless a maintainer
 
 For the analyst workflow, start with:
 
+- `docs/thoth-linux-vm-setup.md` if you are using the packaged preview in a Linux VM
 - `docs/thoth-analyst-quick-start.md`
 
-Start the local review UI:
+The recommended student path is the packaged Thoth preview inside a Linux VM. That path does not require Go inside the VM.
+
+For source-code development, start the local review UI from the repo:
 
 ```bash
 cd hub
@@ -136,6 +139,7 @@ Anything that expands collection scope needs design review before implementation
 - `docs/capstone-projects.md`
 - `docs/github-push-student-collab-roadmap.md`
 - `docs/seker-operator-quick-start.md`
+- `docs/thoth-linux-vm-setup.md`
 - `docs/thoth-analyst-quick-start.md`
 - `docs/thoth-quick-start.md`
 - `docs/thoth-user-guide.md`

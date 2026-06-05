@@ -11,7 +11,7 @@ Two-tier incident response tooling concept to complement the playbooks and TTX w
 
 Make first-touch triage easy enough for lightly trained staff while preserving enough structure for a stronger central review workflow.
 
-## Proposed shape
+## Current Shape
 
 ### Tier 1 — USB Collector
 Portable, low-touch collector that runs from removable media on a suspect endpoint.
@@ -43,6 +43,11 @@ Preferred install shape:
 - self-contained portable Thoth directory
 - separate app/runtime/config/data areas inside that portable folder
 - per-case folders that remain filesystem-legible even when SQLite is the main review surface
+
+The current Thoth 0.1 preview package is published as a GitHub prerelease for supervised student and contributor testing:
+
+- `docs/thoth-linux-vm-setup.md` — run the preview package inside a normal Linux VM
+- `docs/thoth-analyst-quick-start.md` — ingest and review a SEKER bundle
 
 ## High-level folder layout
 
@@ -77,14 +82,15 @@ Without elevation, expect limited or no access to:
 
 That means the first release should be honest: **rapid triage collector**, not full forensic acquisition.
 
-## Next steps
+## Current Preview Path
 
-1. define the minimum collector artifact set
-2. define the bundle schema
-3. support multi-system USB batches cleanly
-4. build a single Go collector binary skeleton
-5. build the ingest path in the hub
-6. add scoring/reporting once the bundle is stable
+For student testing:
+
+1. Use `docs/seker-operator-quick-start.md` to collect synthetic or approved Windows lab data with SEKER.
+2. Use `docs/thoth-linux-vm-setup.md` to run Thoth inside a Linux VM.
+3. Use `docs/thoth-analyst-quick-start.md` to ingest and review the bundle.
+
+Do not use real endpoint data for public coursework or public repository examples.
 
 ## Project references
 
@@ -94,6 +100,7 @@ That means the first release should be honest: **rapid triage collector**, not f
 - platform feature backlog: `docs/platform-feature-backlog.md`
 - Thoth implementation task queue: `docs/thoth-implementation-task-queue.md`
 - SEKER operator quick start: `docs/seker-operator-quick-start.md`
+- Thoth Linux VM setup: `docs/thoth-linux-vm-setup.md`
 - Thoth analyst quick start: `docs/thoth-analyst-quick-start.md`
 - Thoth quick start: `docs/thoth-quick-start.md`
 - Thoth user guide: `docs/thoth-user-guide.md`

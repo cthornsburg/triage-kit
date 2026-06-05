@@ -105,19 +105,19 @@ Tasks:
   - who the project is for
   - what is intentionally out of scope
   - current maturity level
-- Add or update a short `docs/getting-started.md`:
+- Keep `docs/student-onboarding.md` as the short getting-started path:
   - install Go
   - run collector tests
   - run hub tests
   - validate sample manifests
   - run Thoth local UI
-- Add or update `docs/student-onboarding.md`:
+- Keep `docs/student-onboarding.md` current:
   - expected skills
   - setup steps
   - recommended first tasks
   - how to ask for review
   - safety boundaries
-- Add or update `docs/project-glossary.md`:
+- Keep glossary-style terms visible in `README.md`, `PROJECT_MAP.md`, and quick-start docs:
   - SEKER
   - Thoth
   - Case ID
@@ -211,7 +211,7 @@ Tasks:
   - collector log
 - Confirm access-limited conditions are marked partial or warning, not falsely clean.
 - Ingest the Windows bundle into Thoth and confirm the review UI renders it.
-- Document validation results in `docs/seker-validation-notes.md`.
+- Document validation results in `releases/seker/1.0/VALIDATION.md`.
 
 Exit criteria:
 
@@ -320,7 +320,7 @@ Exit criteria:
 
 ## Phase 7 - GitHub Push Checklist
 
-Purpose: make the first public push boring.
+Purpose: keep public-preview changes boring.
 
 Pre-push checks:
 

@@ -170,7 +170,7 @@ Confidence labels separate current devices, previously seen evidence, and volume
 
 ## Current validation gates
 
-Before release/public push, use:
+Before release or public-preview promotion, use:
 
 ```bash
 cd collector && go test ./...

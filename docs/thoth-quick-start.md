@@ -2,7 +2,7 @@
 
 This is the fast path for an analyst using **Thoth** to ingest and review **SEKER** collections locally.
 
-For the shortest student-facing checklist, start with `docs/thoth-analyst-quick-start.md`. This file keeps a little more implementation context for maintainers and pipeline testing.
+For the shortest student-facing checklist, start with `docs/thoth-linux-vm-setup.md` and `docs/thoth-analyst-quick-start.md`. This file keeps a little more implementation context for maintainers and pipeline testing.
 
 ## What Thoth does right now
 
@@ -48,7 +48,9 @@ data/
   tmp/
 ```
 
-From the workspace root, go to:
+For the packaged preview, run commands from the extracted `thoth-0.1-preview` directory.
+
+For source development, go to:
 
 ```bash
 cd incident-response-kit/hub
@@ -76,6 +78,12 @@ Useful helpers:
 ### UI path
 
 Start the UI:
+
+```bash
+./scripts/run-thoth.sh
+```
+
+From a source checkout, use:
 
 ```bash
 go run ./cmd/review-api
@@ -238,6 +246,6 @@ Known limitations:
 
 ## Related docs
 
-- implementation status: `thoth-implementation-status.md`
-- build plan / roadmap: `thoth-build-plan.md`
-- ingest contract notes: `thoth-ingest-contract-checklist.md`
+- implementation status: `docs/thoth-implementation-status.md`
+- build plan / roadmap: `docs/thoth-build-plan.md`
+- ingest contract notes: `docs/thoth-ingest-contract-checklist.md`

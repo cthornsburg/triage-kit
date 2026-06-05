@@ -29,7 +29,7 @@ For the preview build, package Thoth from this repository first:
 - validate the Linux build inside a clean VM
 - document how analysts and contributors can run Thoth inside a Linux VM
 
-NighHax VM is a suitable optional Linux VM base, but it should not become a dependency of Thoth 0.1. Treat NighHax integration as later guidance or a future profile after the existing NighHax repo is cleaned up. This keeps the initial Thoth release focused and avoids maintaining a VM image, credentials, snapshots, guest additions, hypervisor quirks, and update drift before the app package itself is stable.
+Keep the initial Thoth release focused and avoid maintaining a VM image, credentials, snapshots, guest additions, hypervisor quirks, and update drift before the app package itself is stable.
 
 ## Release Directory Shape
 
@@ -110,13 +110,13 @@ Before committing binaries:
 
 Thoth currently builds as standalone binaries and the web UI is not macOS-specific.
 
-Not ready to commit binaries until:
+Preview package status:
 
 - release packaging script exists
-- Linux amd64 runtime validation is completed
 - release docs and checksums are generated
-- Load Investigation Bundle scope is either implemented or explicitly deferred in `VALIDATION.md`
-- the release can be tested from a normal Linux VM without a custom Thoth VM image
+- Linux amd64 runtime has been validated in a normal Linux VM
+- Load Investigation Bundle remains outside the current preview package unless explicitly implemented and validated later
+- student VM setup is documented in `docs/thoth-linux-vm-setup.md`
 
 ## Release Label
 
