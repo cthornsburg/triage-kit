@@ -52,7 +52,7 @@ Preferred install shape:
 - `docs/` — architecture and planning
 - `packaging/` — USB and hub packaging/release helpers
 - `samples/` — example collector output and test cases
-- `releases/` — intentional, checksummed SEKER binaries and validation notes for student/lab testing
+- `releases/` — intentional, checksummed SEKER binaries and validation notes for lab/public preview testing
 - `notes/` — working notes and decision log
 
 ## Important constraint

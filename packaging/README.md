@@ -6,4 +6,5 @@ Release and packaging helpers for:
 
 ## Thoth
 
-- `hub/thoth-0.1-student-test-build.md` — proposed Thoth 0.1 student-test build map, platform targets, release directory shape, and validation gate
+- `hub/build-thoth.sh` — builds the Thoth preview package under `dist/`
+- `hub/thoth-0.1-preview-build.md` — proposed Thoth 0.1 preview build map, platform targets, release directory shape, and validation gate

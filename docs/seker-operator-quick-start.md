@@ -16,7 +16,7 @@ Do not run SEKER on personal, production, or real incident systems for public co
 
 ## Prepare The Collector
 
-For student testing, use the checked-in Windows release binary:
+For lab testing, use the checked-in Windows release binary:
 
 ```text
 releases/seker/1.0/seker.exe

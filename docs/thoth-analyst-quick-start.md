@@ -1,6 +1,6 @@
 # Thoth Analyst Quick Start
 
-This guide is for a student analyst using **Thoth** to ingest a SEKER collection, normalize artifacts, generate findings, and review the case locally.
+This guide is for an analyst or learner using **Thoth** to ingest a SEKER collection, normalize artifacts, generate findings, and review the case locally.
 
 Thoth is a local review hub. It copies SEKER data into its own runtime workspace before review.
 

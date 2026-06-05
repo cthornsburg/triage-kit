@@ -1,8 +1,8 @@
 # PROJECT_MAP.md
 
 - **Project:** Incident Response Kit
-- **Status:** active prototype / student-collaboration preparation
-- **Audience:** maintainers, student contributors, instructors, and public-sector security practitioners
+- **Status:** active prototype / public collaboration preparation
+- **Audience:** maintainers, contributors, instructors, learners, and public-sector security practitioners
 
 ## Purpose
 
@@ -31,7 +31,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/seker-next-iteration-plan.md` — SEKER baseline status and roadmap
 - `shared/contracts/bundle-layout.md` — collector-to-hub bundle contract
 - `shared/schema/` — schema drafts
-- `packaging/hub/thoth-0.1-student-test-build.md` — proposed student-test executable packaging map for Thoth
+- `packaging/hub/thoth-0.1-preview-build.md` — proposed preview executable packaging map for Thoth
 
 ## Source of Truth
 
@@ -53,7 +53,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/` — architecture, workflows, roadmaps, and operator guidance
 - `packaging/` — packaging/release planning
 - `samples/` — synthetic/redacted examples only
-- `releases/` — intentional, checksummed release binaries and validation notes for student/lab testing
+- `releases/` — intentional, checksummed release binaries and validation notes for lab/public preview testing
 - `notes/` — non-sensitive backlog notes
 - `.github/` — issue and pull request templates
 
@@ -99,13 +99,13 @@ go run ./cmd/review-api
 - Do not promise forensic-complete collection without elevation.
 - Do not collect credentials, browser history, memory, broad user-file content, or elevated-only artifacts without explicit design review.
 - Do not commit generated runtime data, real bundles, credentials, private IPs, or unredacted endpoint artifacts.
-- Only commit binaries under `releases/` when they are intentional, checksummed, and documented for lab/student use.
+- Only commit binaries under `releases/` when they are intentional, checksummed, and documented for lab/public preview use.
 - Keep SEKER baseline no-install and no-admin unless a maintainer explicitly approves a separate design path.
 - Keep analyst-centric complexity in Thoth; do not leak it into the low-skill collector UX.
 
-## Student Contribution Fit
+## Contributor Fit
 
-Good student work:
+Good contributor work:
 
 - tests and validation harnesses
 - synthetic sample bundles

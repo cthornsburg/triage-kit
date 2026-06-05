@@ -3,6 +3,7 @@
 *.tmp
 
 # Local build outputs
+dist/
 collector/bin/
 collector/seker
 collector/usbtriage

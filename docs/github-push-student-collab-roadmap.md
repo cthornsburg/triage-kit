@@ -26,7 +26,7 @@ Current implementation state:
 - Thoth has working SEKER ingest, SQLite-backed local state, normalization, first-pass findings, and a local review UI.
 - Go tests currently pass for both collector and hub.
 - Sample manifest validation passes when `jsonschema` is available.
-- Documentation is strong internally, but needs consolidation before public/student use.
+- Documentation is strong internally, but needs consolidation before public contributor and lab use.
 
 ## Readiness Definition
 
