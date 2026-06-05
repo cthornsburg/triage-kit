@@ -71,7 +71,7 @@ The current Thoth 0.1 preview package is published as a GitHub prerelease for su
 - `docs/` — architecture and planning
 - `packaging/` — USB and hub packaging/release helpers
 - `samples/` — example collector output and test cases
-- `releases/` — intentional, checksummed SEKER binaries and validation notes for lab/public preview testing
+- `releases/` — intentional, checksummed SEKER binaries, Thoth preview archives, and validation notes for lab/public preview testing
 - `notes/` — working notes and decision log
 
 ## Important constraint

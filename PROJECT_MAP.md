@@ -54,7 +54,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/` — architecture, workflows, roadmaps, and operator guidance
 - `packaging/` — packaging/release planning
 - `samples/` — synthetic/redacted examples only
-- `releases/` — intentional, checksummed release binaries and validation notes for lab/public preview testing
+- `releases/` — intentional, checksummed SEKER binaries, Thoth preview archives, and validation notes for lab/public preview testing
 - `notes/` — non-sensitive backlog notes
 - `.github/` — issue and pull request templates
 
