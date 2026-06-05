@@ -1,6 +1,6 @@
-# Thoth Low-Token Priority Queue
+# Thoth Implementation Priority Queue
 
-Prioritization for implementation while avoiding large token/rate-limit burn. Bias toward small, local UI fixes in `hub/cmd/review-api/main.go` and documentation updates. Defer schema-heavy, collector-heavy, and broad cross-case work.
+Prioritization for small, reviewable Thoth implementation slices. Bias toward local UI fixes in `hub/cmd/review-api/main.go` and documentation updates before broader schema, collector, or cross-case changes.
 
 ## P0 — tiny UI wording / navigation fixes
 
@@ -95,11 +95,11 @@ These are important but likely to burn more tokens or require broader design.
 
 ## Suggested next implementation slice
 
-The earlier low-token UI cleanup slice is now largely complete. The next high-value slice is workflow-oriented:
+The earlier UI cleanup slice is now largely complete. The next high-value slice should support field triage: an analyst onsite while interns collect multiple systems with SEKER and the analyst needs fast decisions about whether to continue, collect more, mark likely-benign systems, or escalate hosts for deeper forensic evaluation.
 
-1. Case notes + disposition editing UI
-2. Report export from DB-backed case state
-3. Findings suppression / analyst-tunable rule controls
-4. Dashboard polish for cases/findings needing review
+1. Field triage dashboard for multi-system review
+2. Collection completeness / weak-bundle warnings
+3. Quick triage export from DB-backed case state
+4. Findings suppression / analyst-tunable rule controls
 
-If staying very small, start with case notes + disposition because it unlocks useful reports and makes Thoth a review workflow instead of only a viewer.
+The initial host decision status plus notes/disposition slice is implemented. If staying very small, add collection completeness warnings next because field decisions are only useful when the analyst can see whether the underlying SEKER bundle is strong enough to trust.

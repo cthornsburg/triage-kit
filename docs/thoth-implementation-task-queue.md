@@ -1,11 +1,11 @@
-# Thoth Geo Task Queue
+# Thoth Implementation Task Queue
 
-Execution queue for Geo-driven implementation work on Thoth.
+Execution queue for contained implementation work on Thoth.
 
 Operating mode:
-- Chip and Cleo set priority/order
-- Geo implements one contained slice at a time
-- Cleo reviews, verifies, and updates backlog/docs after each slice
+- maintainers set priority and order
+- one contained slice should be implemented at a time
+- reviewers verify behavior and update backlog/docs after each slice
 - do not mix unrelated UI refactors into the same ticket unless explicitly noted
 
 ## Locked priority workflow
@@ -59,7 +59,7 @@ Do these first.
 4. Findings suppressions / analyst-tunable controls
 5. Dashboard improvements
 
-Completed or substantially implemented outside Geo:
+Completed or substantially implemented:
 - Host Overview page upgrade / visible Host Context rename
 - Process list label/search cleanup
 - Scheduled tasks analyst view and parsed time sorting for common fields
@@ -97,7 +97,7 @@ Acceptance checks:
 
 ### GEO-THOTH-002 — Host Overview page upgrade
 
-Status: substantially implemented outside Geo; keep this ticket as historical context and for future Host Overview enrichment.
+Status: substantially implemented; keep this ticket as historical context and for future Host Overview enrichment.
 
 Goal:
 - replace the current raw Host Identity JSON dump with a readable Host Overview summary
@@ -125,7 +125,7 @@ Acceptance checks:
 
 ### GEO-THOTH-003 — Process list view overhaul
 
-Status: partially implemented outside Geo; keep for richer process data once SEKER collects command path/PPID.
+Status: partially implemented; keep for richer process data once SEKER collects command path/PPID.
 
 Goal:
 - turn process list into an analyst-usable page with sort/search/filter
@@ -152,7 +152,7 @@ Acceptance checks:
 
 ### GEO-THOTH-004 — Scheduled tasks analyst view
 
-Status: partially implemented outside Geo; common last/next/start time sorting is implemented, modified/created timestamps remain source-data dependent.
+Status: partially implemented; common last/next/start time sorting is implemented, modified/created timestamps remain source-data dependent.
 
 Goal:
 - redesign scheduled tasks into a high-signal persistence/execution page
@@ -169,7 +169,7 @@ Acceptance checks:
 
 ### GEO-THOTH-005 — Log views analyst format + record limits
 
-Status: substantially implemented outside Geo; keep for future log readability polish, especially richer PowerShell 4104 command/script-block prominence.
+Status: substantially implemented; keep for future log readability polish, especially richer PowerShell 4104 command/script-block prominence.
 
 Goal:
 - improve log readability and stop hiding record counts behind the current 100-row cap wording
@@ -194,7 +194,7 @@ Acceptance checks:
 - analyst can tell whether more than 100 records exist and whether the current view is filtered
 - logs are readable without manual JSON inspection
 
-## Ticket handling rules for Geo
+## Ticket handling rules
 
 - implement one ticket at a time
 - update only the minimum docs/code needed for that ticket

@@ -104,11 +104,11 @@ Start with either:
 - Go CLI + local API, or
 - Go CLI first, then revisit richer review tooling after schemas settle
 
-### Skip opencode for now
+### Avoid extra development-tool dependencies for now
 Reason:
 - it does not solve the core architecture problem
-- it adds another moving part before we have a stable bundle contract
-- we can add a preferred coding tool later without changing the product design
+- extra tooling adds another moving part before the bundle contract is stable
+- preferred contributor tooling can be documented later without changing the product design
 
 ## Risks to manage
 
@@ -135,46 +135,54 @@ With the current product decisions, the recommended near-term build sequence is:
 2. build Thoth ingest + SQLite-backed case model
 3. add integrity validation
 4. add host-centric review UI
-5. add analyst notes/disposition and exports
-6. return later for optional elevated SEKER mode and USB reset/reprepare workflows
+5. add field-triage dashboarding for fast multi-system decision support
+6. add analyst notes/disposition and quick triage exports
+7. return later for optional elevated SEKER mode and USB reset/reprepare workflows
+
+## Field triage scenario
+
+Primary near-term Thoth planning should account for an analyst taking interns to a production site for suspicious network traffic. Interns may collect multiple endpoints with SEKER while the analyst needs a quick local view to decide whether to keep investigating, mark hosts for additional forensic evaluation, or close out likely-benign systems.
+
+This changes the Thoth emphasis from a single-host review viewer to a field triage command board. The UI still needs deep host drilldowns, but the next workflow layer should help the analyst compare systems quickly, identify incomplete or weak collections, record field decisions, and export a concise triage decision summary.
 
 ## Official backlog snapshot
 
 ### Highest-priority next steps
 
 1. move analyst-facing Case ID creation into Thoth ingest and remove dependence on SEKER `case_id` for visible case identity
-2. continue replacing raw-JSON-heavy analyst views with analyst-friendly Thoth pages, centered on Host Overview, process list, scheduled tasks, logs, network, persistence, and collected-source fallbacks
-3. continue artifact/page usability improvements beyond current true record counts, pagination, sorting/filtering, network-state pivots, and IOC search starting with IPs
-4. add Thoth case notes + disposition editing in the UI
-5. add Thoth report export from DB-backed case state
+2. add a field triage dashboard for multi-system review with host identity, collection time, collection completeness, severity/unresolved finding counts, and key network/persistence/process/log indicators
+3. add host decision status plus case notes/disposition editing in the UI for choices like monitor, collect more, likely benign, needs follow-up, and forensic escalation
+4. continue replacing raw-JSON-heavy analyst views with analyst-friendly Thoth pages, centered on Host Overview, process list, scheduled tasks, logs, network, persistence, and collected-source fallbacks
+5. add a quick triage export from DB-backed case state that summarizes field decisions, notes, dispositions, and supporting indicators
 
 ### Locked Thoth priority workflow
 
 #### Tier 1 — analyst workflow blockers
 
 1. case identity flow
-2. replace raw-JSON analyst pain
-3. artifact/page usability
-4. Host Overview naming and enrichment
+2. field triage dashboard for multi-system decision support
+3. collection completeness and weak-bundle warnings
+4. host decision status, notes, and disposition capture
+5. replace raw-JSON analyst pain
 
 #### Tier 2 — analyst context and interpretation
 
-4. evidence/source clarity
-5. Host Overview enrichment
-6. network enrichment
+6. artifact/page usability
+7. Host Overview naming and enrichment
+8. evidence/source clarity
+9. network enrichment
 
 #### Tier 3 — complete review loop
 
-7. notes + disposition
-8. report export
-9. dashboard improvements
-10. findings suppressions / analyst-tunable rule controls
+10. quick triage export
+11. report export
+12. findings suppressions / analyst-tunable rule controls
 
 #### Tier 4 — structural cleanup and scale-up
 
-11. schema tightening
-12. cross-case search/correlation
-13. platform helpers and VM-friendly enrichment actions
+13. schema tightening
+14. cross-case search/correlation
+15. platform helpers and VM-friendly enrichment actions
 
 Reference status: `docs/thoth-implementation-status.md`
 
@@ -191,6 +199,13 @@ Reference status: `docs/thoth-implementation-status.md`
 - store SEKER `bundle_id` as the collection identity / Collection ID, separate from the analyst-facing Thoth Case ID
 - keep duplicate-ingest protection keyed on stable SEKER collection identity, preferably `batch_id` + `bundle_id`, not human case labels
 - remove the current editable case-label field from the primary case page once ingest-time Case ID entry exists
+- add a field triage dashboard for onsite review across multiple intern-collected systems, with host identity, collection time, collection completeness, unresolved/severity counts, and top indicators visible without opening every host
+- add host decision status for field outcomes such as monitor, collect more, likely benign, needs follow-up, and forensic escalation
+- flag incomplete or weak collections so field decisions are not made from missing SEKER artifacts or failed normalization
+- keep investigation bundle controls analyst-facing: use "Save Bundle As..." for preserving the current cases/notes/decisions/findings/evidence to a selected destination, and "Clear Current Investigation" for resetting the active Thoth workspace while preserving saved bundles
+- add "Load Investigation Bundle" for restoring a previously saved Thoth investigation bundle. Default behavior should be replace-by-confirmation, not silent merge: require the analyst to confirm that the current active investigation will be replaced, offer/save-current-first guidance, validate the archive shape before touching current data, then clear active runtime data and restore the bundle. A future "Merge Into Current Investigation" mode can support combining prior work, but it should be a separate explicit action with duplicate/conflict handling rather than the default load behavior.
+- for Thoth 0.1 student testing, do not provide a baseline VM image. Add Linux/macOS build scripts and release docs in this repo first; validate inside a clean Linux VM; use NighHax VM only as optional future guidance/profile after its repo is cleaned up.
+- add quick cross-host pivots for suspicious network traffic, shared remote IPs, persistence entries, scheduled tasks, PowerShell activity, unusual processes, and missing security-control signals
 - continue improving findings evidence display beyond the current partial implementation, where current rule-engine findings link to PowerShell 4104 filtered logs, exact scheduled-task anchors, and exact Persistence records
 - continue improving normalized artifact-set source clarity beyond the current collected-source links, where bundle-relative paths like `logs/system-events.txt` link to a collected-source preview page
 - rename or rework normalized artifact-set status labels so ingest/parse success (for example `ok`) is not misread by analysts as investigative clearance or benignness
@@ -212,7 +227,7 @@ Reference status: `docs/thoth-implementation-status.md`
 - continue improving the process-list page beyond current analyst-friendly labels and case-insensitive partial search; richer command/path/PPID context depends on SEKER collection upgrades
 - tighten manual path entry before any destructive SEKER cleanup/reprep action exists, so internal/system drives cannot be targeted accidentally
 - add case notes + disposition editing in the UI
-- add report export from DB-backed case state
+- add quick triage export from DB-backed case state for onsite decisions, followed by fuller report export
 - maintain and expand a Thoth user guide that explains analyst use cases and the "why" behind each artifact area, including Host Overview, collected source previews, process list, scheduled tasks, network state, logs, persistence, findings, and multi-device case review
 - improve findings suppressions / analyst-tunable rule controls
 - promote the UI from record dump to real triage dashboard

@@ -9,9 +9,9 @@ Use a **two-tier design**:
 
 This keeps endpoint interaction simple and keeps interpretation centralized.
 
-## Why this fits your use case
+## Why this fits the use case
 
-You want:
+The project needs:
 - limited user engagement
 - collection by lightly trained staff
 - no installation if possible
@@ -52,7 +52,7 @@ Two reasonable options:
 My recommendation:
 - start **Go for collector**
 - keep hub language flexible until the schema stabilizes
-- do **not** force an opencode dependency into the architecture right now
+- do **not** force an extra development-tool dependency into the architecture right now
 
 ## Tier 1 — USB Collector
 
@@ -140,18 +140,13 @@ That contract belongs in `shared/schema/` and `shared/contracts/`.
 - keep enrichment optional and explicit
 - hash everything on collection and re-verify on ingest
 
-## Opencode view
+## Development-tooling stance
 
-I would keep opencode out of the initial architecture.
+Keep contributor tooling out of the initial product architecture.
 
-It may be useful later as:
+Additional developer tools may be useful later as:
 - a coding environment preference
-- a helper for rapid internal prototyping
+- a helper for rapid prototyping
 - a separate developer convenience layer
 
 It should **not** be a dependency of the collection or review design.
-
-## Coding note
-
-I do not need a special skill to write Go here.
-I can write Go directly, and if we want, I can also spin up a coding sub-agent later for implementation slices.

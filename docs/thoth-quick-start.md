@@ -101,7 +101,7 @@ That runs the current first-pass pipeline from the UI without needing separate C
 Current safety note:
 
 - the dropdown only auto-lists mounted volumes under `/Volumes` that look SEKER-like
-- the manual path field is still more permissive than we want for future destructive media actions
+- the manual path field is still more permissive than the future destructive media-action workflow should allow
 - before SEKER cleanup/reprep is added, the media-selection flow should be tightened further so internal/system drives cannot be targeted accidentally
 - ingest dedupe should now use `batch_id` + `bundle_id`, not repeated human-facing case IDs like `CASE-LOCAL-001`, so reusable SEKER media can stay mounted without automatically creating duplicate cases
 
@@ -217,7 +217,7 @@ data/
 - `tmp/` = transient working files
 
 - current dev runs launch from `hub/`, and mutable runtime state is created under `hub/data/`
-- this document now defines the intended portable install layout we should converge toward
+- this document defines the intended portable install layout for future packaged builds
 
 ## Current limitations
 

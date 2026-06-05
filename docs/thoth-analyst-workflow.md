@@ -14,7 +14,8 @@ Give the analyst a repeatable path from **USB received** to **triage decision ma
 6. drill into flagged artifacts
 7. record findings and disposition
 8. export summary
-9. optionally reset and reload the SEKER USB for reuse
+9. save or load investigation bundles when preserving/restoring Thoth state
+10. optionally reset and reload the SEKER USB for reuse
 
 ## Step 1 — Receive response media
 
@@ -117,7 +118,31 @@ Thoth should export a compact review package that includes:
 - analyst notes
 - disposition
 
-## Step 9 — Reprepare SEKER media
+## Step 9 — Save or load investigation bundle
+
+Thoth investigation bundles preserve analyst-side work: imported cases, normalized artifacts, findings, notes, decisions, and copied source evidence.
+
+Save behavior:
+- use **Save Bundle As...**
+- let the analyst choose or enter a destination directory
+- save as a `thoth-investigation-*.tar.gz` archive
+- do not clear the active investigation after saving
+
+Load behavior:
+- use **Load Investigation Bundle**
+- default to replacing the active investigation after explicit confirmation
+- prompt the analyst to save the current investigation first if it has work that should be preserved
+- validate the archive before touching active data
+- only accept archives with the expected `thoth-data/` layout and SQLite database
+- reject unsafe archive entries such as absolute paths, parent-directory traversal, symlinks, device files, or unexpected top-level paths
+- stage extraction first, then swap into active data only after validation succeeds
+
+Merge behavior:
+- do not make merge the default
+- a future **Merge Into Current Investigation** action can support prior-work consolidation
+- merge requires conflict handling for duplicate cases, notes, field decisions, findings, and imported source paths
+
+## Step 10 — Reprepare SEKER media
 
 After successful ingest and verification, Thoth may offer:
 - wipe/reformat SEKER media

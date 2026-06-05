@@ -1,6 +1,6 @@
 # SEKER 1.0 Validation
 
-Status: pending Windows live validation by Chip.
+Status: pending Windows live validation by a maintainer.
 
 ## Build validation completed
 

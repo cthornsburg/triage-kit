@@ -1,11 +1,15 @@
 package main
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -63,6 +67,14 @@ func main() {
 			handleIngest(layout, store, w, r)
 			return
 		}
+		if r.URL.Path == "/export-data" && r.Method == http.MethodPost {
+			handleExportData(layout, store, w, r)
+			return
+		}
+		if r.URL.Path == "/clear-data" && r.Method == http.MethodPost {
+			handleClearData(layout, store, w, r)
+			return
+		}
 		if r.URL.Path != "/" {
 			caseRouter(store, w, r)
 			return
@@ -88,6 +100,18 @@ func caseRouter(store *sqlite.Store, w http.ResponseWriter, r *http.Request) {
 	}
 	caseUUID := parts[1]
 
+	if len(parts) == 3 && parts[2] == "decision" && r.Method == http.MethodPost {
+		handleCaseDecision(store, w, r, caseUUID)
+		return
+	}
+	if len(parts) == 3 && parts[2] == "notes" && r.Method == http.MethodPost {
+		handleAddNote(store, w, r, caseUUID)
+		return
+	}
+	if len(parts) == 3 && parts[2] == "field" && r.Method == http.MethodPost {
+		handleFieldUpdate(store, w, r, caseUUID)
+		return
+	}
 	if len(parts) == 2 {
 		showCase(store, w, r, caseUUID)
 		return
@@ -135,6 +159,114 @@ func caseRouter(store *sqlite.Store, w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
+func handleCaseDecision(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseUUID string) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	disposition := normalizeAllowedValue(r.FormValue("disposition"), []string{"", "monitor", "collect_more", "likely_benign", "needs_follow_up", "forensic_escalation"})
+	priority := normalizeAllowedValue(r.FormValue("priority"), []string{"", "low", "medium", "high", "urgent"})
+	escalated := r.FormValue("escalated") == "on"
+	if disposition == "" && priority == "" {
+		escalated = false
+	}
+	if err := store.UpdateCaseDecision(r.Context(), caseUUID, disposition, priority, escalated); err != nil {
+		if err == sql.ErrNoRows {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/cases/"+url.PathEscape(caseUUID)+"?msg="+url.QueryEscape("Decision saved."), http.StatusSeeOther)
+}
+
+func handleAddNote(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseUUID string) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	body := strings.TrimSpace(r.FormValue("body"))
+	if body == "" {
+		http.Redirect(w, r, "/cases/"+url.PathEscape(caseUUID)+"?msg="+url.QueryEscape("Empty note ignored."), http.StatusSeeOther)
+		return
+	}
+	noteType := normalizeAllowedValue(r.FormValue("note_type"), []string{"general", "observation", "decision", "follow_up"})
+	if noteType == "" {
+		noteType = "general"
+	}
+	author := strings.TrimSpace(r.FormValue("author"))
+	if err := store.AddAnalystNote(r.Context(), caseUUID, noteType, body, author); err != nil {
+		if err == sql.ErrNoRows {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/cases/"+url.PathEscape(caseUUID)+"?msg="+url.QueryEscape("Note added."), http.StatusSeeOther)
+}
+
+func handleFieldUpdate(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseUUID string) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	disposition := normalizeAllowedValue(r.FormValue("disposition"), []string{"", "monitor", "collect_more", "likely_benign", "needs_follow_up", "forensic_escalation"})
+	priority := normalizeAllowedValue(r.FormValue("priority"), []string{"", "low", "medium", "high", "urgent"})
+	escalated := r.FormValue("escalated") == "on"
+	if disposition == "" && priority == "" {
+		escalated = false
+	}
+	if err := store.UpdateCaseDecision(r.Context(), caseUUID, disposition, priority, escalated); err != nil {
+		if err == sql.ErrNoRows {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	noteAdded := false
+	body := strings.TrimSpace(r.FormValue("body"))
+	if body != "" {
+		noteType := normalizeAllowedValue(r.FormValue("note_type"), []string{"general", "observation", "decision", "follow_up"})
+		if noteType == "" {
+			noteType = "general"
+		}
+		author := strings.TrimSpace(r.FormValue("author"))
+		if err := store.AddAnalystNote(r.Context(), caseUUID, noteType, body, author); err != nil {
+			if err == sql.ErrNoRows {
+				http.NotFound(w, r)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		noteAdded = true
+	}
+
+	intent := r.FormValue("intent")
+	msg := "Decision saved."
+	if noteAdded {
+		msg = "Decision saved and note added."
+	} else if intent == "add_note" {
+		msg = "Decision saved; empty note ignored."
+	}
+	http.Redirect(w, r, "/cases/"+url.PathEscape(caseUUID)+"?msg="+url.QueryEscape(msg), http.StatusSeeOther)
+}
+
+func normalizeAllowedValue(value string, allowed []string) string {
+	value = strings.TrimSpace(value)
+	for _, item := range allowed {
+		if value == item {
+			return value
+		}
+	}
+	return ""
+}
+
 func showCase(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseUUID string) {
 	showAll := r.URL.Query().Get("show") == "all"
 	caseSummary, found, err := findCase(store, r.Context(), caseUUID)
@@ -162,6 +294,11 @@ func showCase(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseU
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	notes, err := store.ListAnalystNotes(r.Context(), caseUUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	suppressedCount := 0
 	for _, item := range allFindings {
 		if item.Suppressed {
@@ -169,7 +306,7 @@ func showCase(store *sqlite.Store, w http.ResponseWriter, r *http.Request, caseU
 		}
 	}
 	hostContextArtifact, _ := artifactSetByKey(artifactSets, "host_identity")
-	renderTemplate(w, caseTemplate, map[string]any{"Case": caseSummary, "ArtifactSets": buildArtifactSetViews(caseUUID, artifactSets), "Findings": findingViews, "ShowAll": showAll, "SuppressedCount": suppressedCount, "HostContextArtifact": hostContextArtifact})
+	renderTemplate(w, caseTemplate, map[string]any{"Case": caseSummary, "ArtifactSets": buildArtifactSetViews(caseUUID, artifactSets), "Findings": findingViews, "Notes": notes, "Message": r.URL.Query().Get("msg"), "ShowAll": showAll, "SuppressedCount": suppressedCount, "HostContextArtifact": hostContextArtifact})
 }
 
 type artifactSetView struct {
@@ -2400,6 +2537,157 @@ func handleIngest(layout thruntime.Layout, store *sqlite.Store, w http.ResponseW
 	http.Redirect(w, r, "/?msg="+url.QueryEscape(msg), http.StatusSeeOther)
 }
 
+func handleExportData(layout thruntime.Layout, store *sqlite.Store, w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := checkpointSQLite(r.Context(), store); err != nil {
+		http.Redirect(w, r, "/?msg="+url.QueryEscape("Export failed during DB checkpoint: "+err.Error()), http.StatusSeeOther)
+		return
+	}
+	destinationDir := strings.TrimSpace(r.FormValue("destination_dir"))
+	archivePath, err := exportDataBundle(layout, destinationDir)
+	if err != nil {
+		http.Redirect(w, r, "/?msg="+url.QueryEscape("Export failed: "+err.Error()), http.StatusSeeOther)
+		return
+	}
+	msg := "Saved investigation bundle: " + archivePath
+	http.Redirect(w, r, "/?msg="+url.QueryEscape(msg), http.StatusSeeOther)
+}
+
+func handleClearData(layout thruntime.Layout, store *sqlite.Store, w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if strings.TrimSpace(r.FormValue("confirm")) != "CLEAR" {
+		http.Redirect(w, r, "/?msg="+url.QueryEscape("Clear canceled. Type CLEAR to remove current imported data."), http.StatusSeeOther)
+		return
+	}
+	if err := store.ClearAnalysisState(r.Context()); err != nil {
+		http.Redirect(w, r, "/?msg="+url.QueryEscape("Clear failed: "+err.Error()), http.StatusSeeOther)
+		return
+	}
+	if err := clearRuntimeDataDirs(layout); err != nil {
+		http.Redirect(w, r, "/?msg="+url.QueryEscape("DB cleared, but file cleanup failed: "+err.Error()), http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/?msg="+url.QueryEscape("Cleared current Thoth data. Saved exports were left intact."), http.StatusSeeOther)
+}
+
+func checkpointSQLite(ctx context.Context, store *sqlite.Store) error {
+	if _, err := store.DB.ExecContext(ctx, `PRAGMA wal_checkpoint(FULL)`); err != nil {
+		return fmt.Errorf("checkpoint sqlite WAL: %w", err)
+	}
+	return nil
+}
+
+func exportDataBundle(layout thruntime.Layout, destinationDir string) (string, error) {
+	exportsDir := strings.TrimSpace(destinationDir)
+	if exportsDir == "" {
+		exportsDir = filepath.Join(layout.DataRoot, "exports")
+	}
+	absExportsDir, err := filepath.Abs(exportsDir)
+	if err != nil {
+		return "", fmt.Errorf("resolve destination directory: %w", err)
+	}
+	if err := os.MkdirAll(absExportsDir, 0o755); err != nil {
+		return "", fmt.Errorf("create exports directory: %w", err)
+	}
+
+	stamp := time.Now().UTC().Format("20060102T150405Z")
+	archivePath := filepath.Join(absExportsDir, "thoth-investigation-"+stamp+".tar.gz")
+	file, err := os.Create(archivePath)
+	if err != nil {
+		return "", fmt.Errorf("create archive: %w", err)
+	}
+	defer file.Close()
+
+	gzipWriter := gzip.NewWriter(file)
+	defer gzipWriter.Close()
+	tarWriter := tar.NewWriter(gzipWriter)
+	defer tarWriter.Close()
+
+	if err := filepath.WalkDir(layout.DataRoot, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if path == archivePath {
+			return nil
+		}
+		if path == absExportsDir || strings.HasPrefix(path, absExportsDir+string(os.PathSeparator)) {
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if path == filepath.Join(layout.DataRoot, "tmp") || strings.HasPrefix(path, filepath.Join(layout.DataRoot, "tmp")+string(os.PathSeparator)) {
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		return addFileToArchive(tarWriter, layout.DataRoot, path)
+	}); err != nil {
+		return "", fmt.Errorf("write archive: %w", err)
+	}
+	return archivePath, nil
+}
+
+func addFileToArchive(tarWriter *tar.Writer, root, path string) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("stat %s: %w", path, err)
+	}
+	if !info.Mode().IsRegular() {
+		return nil
+	}
+
+	relativePath, err := filepath.Rel(root, path)
+	if err != nil {
+		return fmt.Errorf("relative path for %s: %w", path, err)
+	}
+	header, err := tar.FileInfoHeader(info, "")
+	if err != nil {
+		return fmt.Errorf("create tar header for %s: %w", path, err)
+	}
+	header.Name = filepath.ToSlash(filepath.Join("thoth-data", relativePath))
+	if err := tarWriter.WriteHeader(header); err != nil {
+		return fmt.Errorf("write tar header for %s: %w", path, err)
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", path, err)
+	}
+	defer file.Close()
+	if _, err := io.Copy(tarWriter, file); err != nil {
+		return fmt.Errorf("copy %s into archive: %w", path, err)
+	}
+	return nil
+}
+
+func clearRuntimeDataDirs(layout thruntime.Layout) error {
+	for _, name := range []string{"imports", "cases", "tmp"} {
+		path := filepath.Join(layout.DataRoot, name)
+		if err := os.RemoveAll(path); err != nil {
+			return fmt.Errorf("remove %s: %w", path, err)
+		}
+		if err := os.MkdirAll(path, 0o755); err != nil {
+			return fmt.Errorf("recreate %s: %w", path, err)
+		}
+	}
+	marker := []byte("reset_at=" + time.Now().UTC().Format(time.RFC3339) + "\n")
+	if err := os.WriteFile(filepath.Join(layout.DataRoot, ".reset-marker"), marker, 0o644); err != nil {
+		return fmt.Errorf("write reset marker: %w", err)
+	}
+	return nil
+}
+
 func detectMountedSources() []string {
 	entries, err := os.ReadDir("/Volumes")
 	if err != nil {
@@ -2458,6 +2746,19 @@ const homeTemplate = `<!doctype html><html><head><title>Thoth Cases</title>` + p
 <div class="card"><a href="/docs/quick-start">Open quick start guide</a> · <a href="/docs/user-guide" target="_blank" rel="noopener noreferrer">Open user guide ↗</a></div>
 <div class="card"><a href="/">Refresh case list</a></div>
 <div class="card">
+<h2>Investigation Bundle</h2>
+<form method="post" action="/export-data" style="margin-bottom:12px;">
+<div style="margin-bottom:8px;"><strong>Destination:</strong> <input type="text" name="destination_dir" value="{{.Layout.DataRoot}}/exports" style="width:420px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"></div>
+<button class="button-primary" type="submit">Save Bundle As...</button>
+<span style="color:#94a3b8;margin-left:8px;">Exports current cases, notes, decisions, findings, and imported evidence.</span>
+</form>
+<form method="post" action="/clear-data" onsubmit="return confirm('Clear current imported Thoth data? Saved exports remain, but loaded cases and notes will be removed from this workspace.');">
+<input type="text" name="confirm" placeholder="Type CLEAR" style="width:110px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;">
+<button type="submit">Clear Current Investigation</button>
+<span style="color:#94a3b8;margin-left:8px;">Removes loaded cases from this Thoth workspace. Saved bundles are not deleted.</span>
+</form>
+</div>
+<div class="card">
 <h2>Ingest SEKER media</h2>
 <form method="post" action="/ingest" onsubmit="document.getElementById('ingest-button').disabled=true;document.getElementById('ingest-button').innerText='Running ingest…';document.getElementById('ingest-status').style.display='block';">
 {{if .Sources}}<div><strong>Detected sources:</strong></div>
@@ -2468,11 +2769,12 @@ const homeTemplate = `<!doctype html><html><head><title>Thoth Cases</title>` + p
 <div style="margin-top:10px;"><button id="ingest-button" class="button-primary" type="submit">Run ingest + normalize + findings</button></div>
 </form>
 </div>
-<table><thead><tr><th>Host</th><th>Host / OS</th><th>Collected</th><th>Status</th><th>Integrity</th><th>Warnings</th><th>Errors</th></tr></thead><tbody>
+<table><thead><tr><th>Host</th><th>Host / OS</th><th>Collected</th><th>Decision</th><th>Status</th><th>Integrity</th><th>Warnings</th><th>Errors</th></tr></thead><tbody>
 {{range .Cases}}<tr>
 <td><a href="/cases/{{.CaseUUID}}">{{.CaseID}}</a><br><span style="color:#94a3b8">{{.Hostname}}</span></td>
 <td>{{.Hostname}}<br><span style="color:#94a3b8">{{.OSVersion}}{{if .OSBuild}} ({{.OSBuild}}){{end}}</span></td>
 <td>{{.CollectedAt}}</td>
+<td>{{if .Disposition}}{{.Disposition}}{{else}}Not set{{end}}{{if .Priority}}<br><span style="color:#94a3b8">{{.Priority}}</span>{{end}}{{if .Escalated}}<br><strong>Escalated</strong>{{end}}</td>
 <td>{{.Status}}</td>
 <td>{{.IntegrityStatus}}</td>
 <td>{{.WarningsCount}}</td>
@@ -2483,6 +2785,7 @@ const homeTemplate = `<!doctype html><html><head><title>Thoth Cases</title>` + p
 const caseTemplate = `<!doctype html><html><head><title>Thoth Case</title>` + pageStyle + `</head><body>
 <p><a href="/">← Back to cases</a></p>
 <h1>{{.Case.CaseID}}</h1>
+{{if .Message}}<div class="card"><strong>{{.Message}}</strong></div>{{end}}
 <div class="card">
 <div><strong>Host:</strong> {{.Case.Hostname}}</div>
 <div><strong>OS:</strong> {{.Case.OSVersion}}{{if .Case.OSBuild}} ({{.Case.OSBuild}}){{end}}</div>
@@ -2493,7 +2796,54 @@ const caseTemplate = `<!doctype html><html><head><title>Thoth Case</title>` + pa
 <div><strong>Collected:</strong> {{.Case.CollectedAt}}</div>
 <div><strong>Status:</strong> {{.Case.Status}}</div>
 <div><strong>Integrity:</strong> {{.Case.IntegrityStatus}}</div>
+<div><strong>Field decision:</strong> {{if .Case.Disposition}}{{.Case.Disposition}}{{else}}Not set{{end}}{{if .Case.Priority}} · Priority: {{.Case.Priority}}{{end}}{{if .Case.Escalated}} · <strong>Forensic escalation</strong>{{end}}</div>
 </div>
+<form method="post" action="/cases/{{.Case.CaseUUID}}/field">
+<h2>Field decision</h2>
+<div class="card">
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
+<label><strong>Disposition</strong><br>
+<select name="disposition" style="width:190px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;">
+<option value="" {{if eq .Case.Disposition ""}}selected{{end}}>Not set</option>
+<option value="monitor" {{if eq .Case.Disposition "monitor"}}selected{{end}}>Monitor</option>
+<option value="collect_more" {{if eq .Case.Disposition "collect_more"}}selected{{end}}>Collect more</option>
+<option value="likely_benign" {{if eq .Case.Disposition "likely_benign"}}selected{{end}}>Likely benign</option>
+<option value="needs_follow_up" {{if eq .Case.Disposition "needs_follow_up"}}selected{{end}}>Needs follow-up</option>
+<option value="forensic_escalation" {{if eq .Case.Disposition "forensic_escalation"}}selected{{end}}>Forensic escalation</option>
+</select></label>
+<label><strong>Priority</strong><br>
+<select name="priority" style="width:140px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;">
+<option value="" {{if eq .Case.Priority ""}}selected{{end}}>Not set</option>
+<option value="low" {{if eq .Case.Priority "low"}}selected{{end}}>Low</option>
+<option value="medium" {{if eq .Case.Priority "medium"}}selected{{end}}>Medium</option>
+<option value="high" {{if eq .Case.Priority "high"}}selected{{end}}>High</option>
+<option value="urgent" {{if eq .Case.Priority "urgent"}}selected{{end}}>Urgent</option>
+</select></label>
+<label style="padding-bottom:7px;"><input type="checkbox" name="escalated" {{if .Case.Escalated}}checked{{end}}> Mark for forensic escalation</label>
+<button class="button-primary" type="submit" name="intent" value="save_decision">Save decision</button>
+</div>
+</div>
+<h2>Analyst notes</h2>
+<div class="card">
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+<select name="note_type" style="width:150px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;">
+<option value="general">General</option>
+<option value="observation">Observation</option>
+<option value="decision">Decision</option>
+<option value="follow_up">Follow-up</option>
+</select>
+<input type="text" name="author" placeholder="Analyst" style="width:160px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;">
+</div>
+<textarea name="body" rows="4" placeholder="Record field observations, collection gaps, decision rationale, or follow-up instructions." style="width:100%;box-sizing:border-box;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:8px;border-radius:4px;"></textarea>
+<div style="margin-top:8px;"><button class="button-primary" type="submit" name="intent" value="add_note">Add note</button></div>
+</div>
+</form>
+{{if .Notes}}
+{{range .Notes}}<div class="card">
+<div><strong>{{.NoteType}}</strong> · {{.CreatedAt}}{{if .Author}} · {{.Author}}{{end}}</div>
+<div style="margin-top:8px;white-space:pre-wrap;">{{.Body}}</div>
+</div>{{end}}
+{{else}}<div class="card">No analyst notes yet.</div>{{end}}
 {{if .HostContextArtifact}}<div class="card"><a href="/cases/{{.Case.CaseUUID}}/host-overview">Open Host Overview</a></div>{{end}}
 <div class="card"><a href="/cases/{{.Case.CaseUUID}}/processes">Open process list view</a></div>
 <div class="card"><a href="/cases/{{.Case.CaseUUID}}/scheduled-tasks">Open scheduled tasks view</a></div>

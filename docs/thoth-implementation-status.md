@@ -201,6 +201,29 @@ Current UI behavior:
 - label edits persist in SQLite and do not rename raw evidence paths
 - case list and case detail headers now surface hostname plus OS version/build information so an analyst gets host context immediately
 
+### 9. Field decision state, analyst notes, and investigation bundle controls
+
+Current UI behavior:
+
+- case list shows a field decision column with disposition, priority, and escalation state
+- case detail pages let analysts set disposition, priority, and forensic escalation state
+- case detail pages support append-only analyst notes with note type and optional author
+- home page can save the current investigation bundle as a tar.gz archive
+- analysts can enter a destination directory before saving; the default remains `data/exports`
+- home page can clear current imported cases/runtime data after the analyst types `CLEAR`
+- clearing the current investigation leaves saved bundles intact
+
+Planned load/restore behavior:
+
+- add **Load Investigation Bundle** for restoring a previously saved `thoth-investigation-*.tar.gz`
+- default load mode should replace the active investigation after explicit confirmation
+- the UI should tell analysts to save the current investigation first if they need to preserve it
+- validate the archive before touching current data; expected shape includes `thoth-data/db/thoth.sqlite` and may include `thoth-data/cases/` and `thoth-data/imports/`
+- reject archives with absolute paths, parent-directory traversal, unexpected top-level paths, missing SQLite DB, or symlink/device entries
+- restore into a temporary staging directory first, then swap into active `data/` only after validation succeeds
+- keep saved bundles/exports intact when replacing the active investigation
+- reserve **Merge Into Current Investigation** as a future explicit action, not the default load behavior, because merging requires duplicate case detection and conflict handling for notes, decisions, findings, and imported source paths
+
 ## Commands in active use
 
 From `incident-response-kit/hub`:
@@ -217,7 +240,6 @@ go run ./cmd/review-api
 
 - normalized records are in a generic DB store, not a polished analyst schema yet
 - findings are useful but noisy and still need suppressions/allowlists for common legit software
-- no notes/disposition editing UI yet
 - no report export UI yet
 - no findings queue/home dashboard yet
 - no artifact search/filtering yet
@@ -242,11 +264,12 @@ go run ./cmd/review-api
 
 ## Immediate next logical steps
 
-1. add finding suppressions / analyst-tunable rule controls
-2. add case notes + disposition editing in the UI
-3. add report export from DB-backed case state
-4. promote the UI from record dump to real triage dashboard
-5. decide where generic normalized tables should become dedicated schemas
+1. add a field triage dashboard for multi-system onsite review
+2. add Load Investigation Bundle with replace-by-confirmation behavior and archive guardrails
+3. add collection completeness / weak-bundle warnings
+4. add quick triage export from DB-backed case state
+5. add finding suppressions / analyst-tunable rule controls
+6. decide where generic normalized tables should become dedicated schemas
 
 ## Official backlog detail
 
@@ -255,11 +278,18 @@ go run ./cmd/review-api
 #### Pre-push / release-gate items
 
 - package Thoth as a runnable analyst-side executable/portable build before public push; current Thoth workflow still depends on `go run ./cmd/ingest`, `go run ./cmd/review-cli`, and `go run ./cmd/review-api`, while SEKER already has a built Windows executable
+- Thoth is not macOS-specific; current web UI/runtime target is macOS or Linux, with Linux VM validation preferred for student use
+- proposed Thoth 0.1 student-test packaging map lives at `packaging/hub/thoth-0.1-student-test-build.md`
 
 #### Active next-up
 
 - move analyst-facing case ID creation into Thoth ingest and add a fillable ingest-time case-ID field
 - remove the current editable case-label field from the primary case page once ingest-time Case ID entry exists
+- add a field triage dashboard for an analyst supervising multiple intern-collected SEKER bundles at a production site; the dashboard should show host identity, collection time, collection completeness, unresolved/severity counts, and top indicators without requiring deep per-host review first
+- continue refining host decision status for field outcomes such as monitor, collect more, likely benign, needs follow-up, and forensic escalation; the initial case-list/case-detail UI and persistence are implemented
+- flag incomplete or weak collections so analysts know when missing artifacts or normalization failures weaken a field decision
+- add Load Investigation Bundle with replace-by-confirmation behavior for previously saved Thoth investigation bundles; defer merge behavior until duplicate/conflict handling is designed
+- add quick cross-host pivots for suspicious network traffic, shared remote IPs, persistence entries, scheduled tasks, PowerShell activity, unusual processes, and missing security-control signals
 - improve findings evidence display beyond the current partial implementation by storing structured evidence references in dedicated fields instead of encoding refs in evidence text; current rule-engine links already cover PowerShell 4104, scheduled-task anchors, and Persistence anchors
 - continue improving normalized artifact-set labeling beyond the current collected-source links, including clearer analyst descriptions and less ambiguous status wording
 - rename or rework normalized artifact-set status labels so ingest/parse success is not misread as analyst clearance or benignness
@@ -278,10 +308,10 @@ go run ./cmd/review-api
 - continue improving persistence detail pages beyond the current friendly Persistence view, especially timestamp/date context where available
 - continue improving the scheduled-tasks view beyond the current high-signal page and date/time sorting for last run, next run, and start time; modified/created timestamps remain pending where source data supports them
 - continue improving the process-list view beyond current analyst-friendly labels and case-insensitive partial search; richer command path/PPID depends on SEKER collection upgrades
-- add case notes + disposition editing in the UI
-- add report export from DB-backed case state
+- continue improving case notes + disposition editing in the UI
+- add quick triage export from DB-backed case state, followed by fuller report export
 - improve findings suppressions / analyst-tunable rule controls
-- promote the UI from record dump to a clearer triage dashboard
+- promote the UI from record dump to a clearer field triage dashboard
 - decide where generic normalized tables should become dedicated schemas
 
 #### Safety / operability

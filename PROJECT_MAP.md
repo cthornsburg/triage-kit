@@ -31,6 +31,7 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - `docs/seker-next-iteration-plan.md` — SEKER baseline status and roadmap
 - `shared/contracts/bundle-layout.md` — collector-to-hub bundle contract
 - `shared/schema/` — schema drafts
+- `packaging/hub/thoth-0.1-student-test-build.md` — proposed student-test executable packaging map for Thoth
 
 ## Source of Truth
 
@@ -40,8 +41,8 @@ The project is intended for rapid triage and teaching/research workflows, not fu
 - Thoth build sequence: `docs/thoth-build-plan.md`
 - student/public push readiness: `docs/github-push-student-collab-roadmap.md`
 - student onboarding and capstone tracks: `docs/student-onboarding.md`, `docs/capstone-projects.md`, `docs/seker-operator-quick-start.md`, and `docs/thoth-analyst-quick-start.md`
-- active backlog: `PLAN.md`, `docs/thoth-implementation-status.md`, `docs/thoth-geo-task-queue.md`, and `docs/seker-geo-task-queue.md`
-- low-token/small-slice implementation queue: `docs/thoth-low-token-priority.md`
+- active backlog: `PLAN.md`, `docs/thoth-implementation-status.md`, `docs/thoth-implementation-task-queue.md`, and `docs/seker-implementation-task-queue.md`
+- small-slice implementation priority queue: `docs/thoth-implementation-priority.md`
 - bundle layout and schemas: `shared/contracts/bundle-layout.md` and `shared/schema/`
 
 ## Main Areas
@@ -89,7 +90,7 @@ go run ./cmd/review-api
 
 - GitHub readiness: reconcile source, remove unintended generated/runtime artifacts, and tighten public docs.
 - Capstone readiness: add student onboarding docs, issue templates, scoped starter issues, and review checklists.
-- Thoth next-up: notes/disposition UI, report export, suppressions/rule controls, dashboarding, and portable packaging.
+- Thoth next-up: field triage dashboarding for multi-system onsite review, host decision status, collection completeness warnings, notes/disposition UI, quick triage export, suppressions/rule controls, and portable packaging.
 - SEKER next-up: Windows no-admin validation and release documentation for the 1.0 baseline.
 - Later: Windows Server coverage, optional elevated collection mode, memory-capture-aware workflows, cross-case search, and richer schema design.
 
@@ -109,6 +110,7 @@ Good student work:
 - tests and validation harnesses
 - synthetic sample bundles
 - Thoth UI workflow improvements
+- field triage dashboard cards and host decision workflows
 - report export
 - findings quality and explainability
 - documentation, onboarding, and diagrams

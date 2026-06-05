@@ -367,7 +367,7 @@ First push should not include:
 Exit criteria:
 
 - clean initial commit or small set of intentional commits
-- remote GitHub repo is private or public according to Chip's decision
+- remote GitHub repo visibility is intentionally selected and documented
 - README accurately communicates prototype status
 - student tasks are available as issues
 

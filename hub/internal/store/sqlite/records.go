@@ -22,6 +22,9 @@ type CaseSummary struct {
 	CollectedAt        string
 	Status             string
 	IntegrityStatus    string
+	Disposition        string
+	Priority           string
+	Escalated          bool
 	WarningsCount      int
 	ErrorsCount        int
 	CollectorVersion   string
@@ -56,6 +59,15 @@ type FindingRecord struct {
 	Source            string
 	Suppressed        bool
 	SuppressionReason string
+}
+
+type AnalystNoteRecord struct {
+	ID        int64
+	NoteType  string
+	Body      string
+	Author    string
+	CreatedAt string
+	UpdatedAt string
 }
 
 type ImportRecord struct {
@@ -223,6 +235,9 @@ func (s *Store) ListCaseSummaries(ctx context.Context) ([]CaseSummary, error) {
 			COALESCE(c.collected_at, ''),
 			c.status,
 			c.integrity_status,
+			COALESCE(c.disposition, ''),
+			COALESCE(c.priority, ''),
+			c.escalated,
 			COALESCE(ir.warnings_count, 0),
 			COALESCE(ir.errors_count, 0),
 			COALESCE(c.collector_version, ''),
@@ -256,6 +271,9 @@ func (s *Store) ListCaseSummaries(ctx context.Context) ([]CaseSummary, error) {
 			&summary.CollectedAt,
 			&summary.Status,
 			&summary.IntegrityStatus,
+			&summary.Disposition,
+			&summary.Priority,
+			&summary.Escalated,
 			&summary.WarningsCount,
 			&summary.ErrorsCount,
 			&summary.CollectorVersion,
@@ -278,6 +296,110 @@ func (s *Store) UpdateCaseLabel(ctx context.Context, caseUUID, label string) err
 	_, err := s.DB.ExecContext(ctx, `UPDATE cases SET asset_label = ?, updated_at = CURRENT_TIMESTAMP WHERE case_uuid = ?`, label, caseUUID)
 	if err != nil {
 		return fmt.Errorf("update case label: %w", err)
+	}
+	return nil
+}
+
+func (s *Store) UpdateCaseDecision(ctx context.Context, caseUUID, disposition, priority string, escalated bool) error {
+	escalatedValue := 0
+	if escalated {
+		escalatedValue = 1
+	}
+	result, err := s.DB.ExecContext(ctx, `
+		UPDATE cases
+		SET disposition = ?, priority = ?, escalated = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE case_uuid = ?
+	`, disposition, priority, escalatedValue, caseUUID)
+	if err != nil {
+		return fmt.Errorf("update case decision: %w", err)
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("update case decision rows affected: %w", err)
+	}
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) AddAnalystNote(ctx context.Context, caseUUID, noteType, body, author string) error {
+	result, err := s.DB.ExecContext(ctx, `
+		INSERT INTO analyst_notes (case_id, note_type, body, author)
+		SELECT id, ?, ?, ?
+		FROM cases
+		WHERE case_uuid = ?
+	`, noteType, body, author, caseUUID)
+	if err != nil {
+		return fmt.Errorf("add analyst note: %w", err)
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("add analyst note rows affected: %w", err)
+	}
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) ListAnalystNotes(ctx context.Context, caseUUID string) ([]AnalystNoteRecord, error) {
+	rows, err := s.DB.QueryContext(ctx, `
+		SELECT n.id, n.note_type, n.body, COALESCE(n.author, ''), n.created_at, n.updated_at
+		FROM analyst_notes n
+		JOIN cases c ON c.id = n.case_id
+		WHERE c.case_uuid = ?
+		ORDER BY n.created_at DESC, n.id DESC
+	`, caseUUID)
+	if err != nil {
+		return nil, fmt.Errorf("list analyst notes: %w", err)
+	}
+	defer rows.Close()
+
+	var notes []AnalystNoteRecord
+	for rows.Next() {
+		var note AnalystNoteRecord
+		if err := rows.Scan(&note.ID, &note.NoteType, &note.Body, &note.Author, &note.CreatedAt, &note.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("scan analyst note: %w", err)
+		}
+		notes = append(notes, note)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate analyst notes: %w", err)
+	}
+	return notes, nil
+}
+
+func (s *Store) ClearAnalysisState(ctx context.Context) error {
+	tx, err := s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin clear analysis state: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	statements := []string{
+		`DELETE FROM ingested_bundles`,
+		`DELETE FROM case_exports`,
+		`DELETE FROM analyst_notes`,
+		`DELETE FROM findings`,
+		`DELETE FROM normalized_records`,
+		`DELETE FROM normalized_artifact_sets`,
+		`DELETE FROM host_contexts`,
+		`DELETE FROM integrity_results`,
+		`DELETE FROM cases`,
+		`DELETE FROM case_imports`,
+	}
+	for _, statement := range statements {
+		if _, err = tx.ExecContext(ctx, statement); err != nil {
+			return fmt.Errorf("clear analysis state with %q: %w", statement, err)
+		}
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("commit clear analysis state: %w", err)
 	}
 	return nil
 }

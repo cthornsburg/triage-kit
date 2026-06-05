@@ -268,7 +268,7 @@ Best default user path:
 
 ## Recommendation
 
-If we keep v1 tight, the essential pages are:
+For a focused v1, the essential pages are:
 - Ingest
 - Cases
 - Case Detail / Overview

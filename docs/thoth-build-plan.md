@@ -298,7 +298,7 @@ Not part of the first cut, but intentionally designed for:
 12. cross-case search/correlation
 13. platform helpers and VM-friendly enrichment actions
 
-Execution queue for Geo-driven implementation: `docs/thoth-geo-task-queue.md`
+Execution queue for implementation: `docs/thoth-implementation-task-queue.md`
 
 ### Immediate Thoth priorities
 
@@ -378,4 +378,4 @@ Thoth v1 is good enough when you can:
 6. record analyst judgment
 7. export a Markdown and JSON summary
 
-If it can do that reliably on a Mac without network dependencies, we have a real first release.
+If it can do that reliably on a supported local workstation without network dependencies, Thoth has reached a credible first-release milestone.

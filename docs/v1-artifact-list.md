@@ -301,7 +301,7 @@ case-<id>/
 
 The list below is a **build priority**, not the final acquisition order. Build can proceed by feature area, but the collector should execute commands in the contamination-aware run order that follows.
 
-If we cut to the bone for the first real collector pass, build in this order:
+For the smallest useful collector pass, build in this order:
 
 1. host identity
 2. process inventory
@@ -378,4 +378,4 @@ Avoid language like:
 - "complete host acquisition"
 - "IR-ready for all evidence needs"
 
-Because that would be bullshit, and I’d rather we not ship bullshit.
+Those claims would overstate the baseline collector's coverage and should not appear in public release language.

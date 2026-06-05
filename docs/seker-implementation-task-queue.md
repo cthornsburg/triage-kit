@@ -1,11 +1,11 @@
-# SEKER Geo Task Queue
+# SEKER Implementation Task Queue
 
-Implementation queue for Geo-driven SEKER v1.0 work.
+Implementation queue for contained SEKER v1.0 work.
 
 Operating mode:
-- Chip and Cleo set priority/order.
-- Geo implements one contained slice at a time.
-- Cleo reviews, verifies, and updates backlog/docs after each slice.
+- maintainers set priority and order.
+- one contained slice should be implemented at a time.
+- reviewers verify behavior and update backlog/docs after each slice.
 - Keep changes Windows-first, USB-run, no-install, and no-admin for the baseline collector.
 - Do not add user-space file triage, targeted file hashing, browser history handling, or broad execution-history parsing in this pass; those are deferred to SEKER v2.0.
 - Finished Windows executable version should be **1.0**.
@@ -21,7 +21,7 @@ Current collector entry points:
 
 ## Locked acquisition order for SEKER v1.0
 
-Geo should preserve this runtime order unless Chip/Cleo explicitly change it:
+Preserve this runtime order unless maintainers explicitly change it:
 
 1. Minimal preflight only
 2. Most volatile live state: process and network snapshots
@@ -331,7 +331,7 @@ Acceptance checks:
 - Thoth ingests and displays the new bundle.
 - finished exe/version is documented as SEKER `1.0`.
 
-## Handling rules for Geo
+## Handling rules
 
 - Implement one ticket at a time.
 - Keep code/docs changes scoped to the active ticket.
@@ -340,19 +340,18 @@ Acceptance checks:
 - Do not add elevated collection or memory capture in SEKER v1.0.
 - Do not add file triage in SEKER v1.0.
 
-## Rate-limit-safe execution rules
+## Efficient execution rules
 
-Use these rules to reduce avoidable model/API pressure while working through the SEKER tickets:
+Use these rules to keep SEKER tickets reviewable and repeatable:
 
-- Prefer **one Geo ticket per run**. Do not ask Geo to implement the whole v1.0 queue in one pass.
-- Keep each implementation prompt short and point Geo to this file plus the specific ticket ID instead of pasting large context repeatedly.
+- Prefer **one ticket per run**. Do not implement the whole v1.0 queue in one pass.
+- Keep each implementation prompt short and point contributors to this file plus the specific ticket ID.
 - Start with local inspection commands (`grep`, `find`, `go test`, targeted file reads) before asking for broad reasoning over the whole repo.
-- Avoid spawning multiple coding agents against the same repo at the same time; serialize SEKER tickets unless Chip/Cleo explicitly split non-overlapping work.
-- For large tickets, ask Geo for a short implementation plan first, then approve the smallest coherent slice.
+- Avoid parallel changes against the same repo area; serialize SEKER tickets unless maintainers explicitly split non-overlapping work.
+- For large tickets, write a short implementation plan first, then approve the smallest coherent slice.
 - Prefer deterministic local commands over model calls for verification: `go test`, `go build`, sample collector runs, Thoth ingest/normalize, and targeted diffs.
-- Cache decisions in docs after each ticket so the next run can read one source of truth instead of reconstructing context from chat history.
+- Cache decisions in docs after each ticket so the next contributor can read one source of truth.
 - Keep sample outputs small. Do not generate or ingest many large bundles just to prove a parser path.
-- If a provider returns 429/rate-limit errors, stop the current ticket, record the exact blocker, and resume later instead of retrying in a tight loop.
 - When using web or external lookups, batch questions and prefer official/local Windows command documentation; do not perform repeated one-off searches for every field.
 - Do not run broad formatters or repo-wide rewrites unless the ticket explicitly requires them; they create noisy diffs and larger review burden.
 - End each ticket with a compact handoff: changed files, commands run, results, known gaps, and next recommended ticket.

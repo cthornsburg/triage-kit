@@ -20,6 +20,10 @@ Recommended direction:
 - prefer a **lightweight Linux VM** as the actual analysis workspace
 - use the laptop host as the operator platform, not the trust boundary
 
+The current Thoth web UI is not macOS-specific. It is a local Go HTTP service backed by SQLite and filesystem storage. macOS is the active development path; Linux amd64 should be treated as the preferred student/VM validation target before committing a packaged Thoth executable.
+
+For Thoth 0.1, do not distribute a baseline VM image. Build and validate Thoth as a portable app package first, then document how to run it inside a normal Linux VM. NighHax VM can become optional guidance or a future profile after that repo is cleaned up, but it should not be required for the initial student test build.
+
 ## Why not run Thoth directly on the same general-purpose workstation without isolation?
 
 Because deeper triage and forensic review always carries some risk:
