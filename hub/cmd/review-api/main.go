@@ -2689,22 +2689,59 @@ func clearRuntimeDataDirs(layout thruntime.Layout) error {
 }
 
 func detectMountedSources() []string {
-	entries, err := os.ReadDir("/Volumes")
-	if err != nil {
-		return nil
-	}
+	return detectMountedSourcesFromRoots([]string{"/Volumes", "/media", "/run/media", "/mnt"})
+}
+
+func detectMountedSourcesFromRoots(roots []string) []string {
 	var sources []string
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		path := filepath.Join("/Volumes", entry.Name())
-		if dirExists(path) && (dirExists(filepath.Join(path, "collections")) || fileExists(filepath.Join(path, "batch-manifest.json"))) {
-			sources = append(sources, path)
+	seen := map[string]struct{}{}
+	for _, root := range roots {
+		for _, path := range mountedSourceCandidates(root) {
+			if _, exists := seen[path]; exists {
+				continue
+			}
+			if isLikelySekerSource(path) {
+				seen[path] = struct{}{}
+				sources = append(sources, path)
+			}
 		}
 	}
 	sort.Strings(sources)
 	return sources
+}
+
+func mountedSourceCandidates(root string) []string {
+	if !dirExists(root) {
+		return nil
+	}
+
+	candidates := []string{root}
+	children, err := os.ReadDir(root)
+	if err != nil {
+		return candidates
+	}
+	for _, child := range children {
+		if !child.IsDir() {
+			continue
+		}
+		childPath := filepath.Join(root, child.Name())
+		candidates = append(candidates, childPath)
+
+		grandchildren, err := os.ReadDir(childPath)
+		if err != nil {
+			continue
+		}
+		for _, grandchild := range grandchildren {
+			if grandchild.IsDir() {
+				candidates = append(candidates, filepath.Join(childPath, grandchild.Name()))
+			}
+		}
+	}
+	return candidates
+}
+
+func isLikelySekerSource(path string) bool {
+	return dirExists(path) && (dirExists(filepath.Join(path, "collections")) || fileExists(filepath.Join(path, "batch-manifest.json")))
 }
 
 func fileExists(path string) bool {
@@ -2762,9 +2799,9 @@ const homeTemplate = `<!doctype html><html><head><title>Thoth Cases</title>` + p
 <h2>Ingest SEKER media</h2>
 <form method="post" action="/ingest" onsubmit="document.getElementById('ingest-button').disabled=true;document.getElementById('ingest-button').innerText='Running ingest…';document.getElementById('ingest-status').style.display='block';">
 {{if .Sources}}<div><strong>Detected sources:</strong></div>
-<div style="margin-top:8px;"><select name="source_path" style="width:380px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"><option value="">Select a mounted source…</option>{{range .Sources}}<option value="{{.}}">{{.}}</option>{{end}}</select></div>{{else}}<div>No likely SEKER media auto-detected under <code>/Volumes</code>.</div>{{end}}
+<div style="margin-top:8px;"><select name="source_path" style="width:380px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"><option value="">Select a mounted source…</option>{{range .Sources}}<option value="{{.}}">{{.}}</option>{{end}}</select></div>{{else}}<div>No likely SEKER media auto-detected under common mount paths.</div>{{end}}
 <div style="margin-top:10px;"><strong>Case ID:</strong> <input type="text" name="analyst_case_id" placeholder="IR-2026-001" style="width:220px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"> <span style="color:#94a3b8">Optional analyst-facing Case ID override</span></div>
-<div style="margin-top:10px;"><strong>Or enter a path:</strong> <input type="text" name="manual_source_path" placeholder="/Volumes/SEKER" style="width:320px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"></div>
+<div style="margin-top:10px;"><strong>Or enter a path:</strong> <input type="text" name="manual_source_path" placeholder="/media/$USER/SEKER-001" style="width:320px;background:#020617;color:#e2e8f0;border:1px solid #334155;padding:6px;border-radius:4px;"></div>
 <div id="ingest-status" class="card status-running" style="display:none;margin-top:12px;">Pipeline started. Thoth is ingesting, normalizing, and generating findings for the selected source…</div>
 <div style="margin-top:10px;"><button id="ingest-button" class="button-primary" type="submit">Run ingest + normalize + findings</button></div>
 </form>

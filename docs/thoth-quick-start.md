@@ -89,7 +89,7 @@ http://127.0.0.1:8080
 
 From the home page you can now:
 
-- select an auto-detected mounted source such as `/Volumes/SEKER` from the dropdown, or
+- select an auto-detected mounted source from the dropdown, or
 - enter a manual source path
 
 Then click:
@@ -100,17 +100,19 @@ That runs the current first-pass pipeline from the UI without needing separate C
 
 Current safety note:
 
-- the dropdown only auto-lists mounted volumes under `/Volumes` that look SEKER-like
+- the dropdown auto-lists likely SEKER sources under common macOS and Linux mount roots such as `/Volumes`, `/media`, `/run/media`, and `/mnt`
 - the manual path field is still more permissive than the future destructive media-action workflow should allow
 - before SEKER cleanup/reprep is added, the media-selection flow should be tightened further so internal/system drives cannot be targeted accidentally
 - ingest dedupe should now use `batch_id` + `bundle_id`, not repeated human-facing case IDs like `CASE-LOCAL-001`, so reusable SEKER media can stay mounted without automatically creating duplicate cases
 
 ### CLI path
 
-If the SEKER USB is mounted at `/Volumes/SEKER`:
+If the SEKER USB is mounted at `/Volumes/SEKER` on macOS or `/media/<user>/SEKER-001` on Linux:
 
 ```bash
 go run ./cmd/ingest /Volumes/SEKER
+# or
+go run ./cmd/ingest /media/$USER/SEKER-001
 ```
 
 You can also point Thoth at:
@@ -177,6 +179,8 @@ If you just want the current happy path:
 
 ```bash
 go run ./cmd/ingest /Volumes/SEKER
+# or on Linux
+go run ./cmd/ingest /media/$USER/SEKER-001
 go run ./cmd/review-cli normalize
 go run ./cmd/review-cli findings
 go run ./cmd/review-api
