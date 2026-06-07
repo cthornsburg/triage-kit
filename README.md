@@ -1,5 +1,9 @@
 # Incident Response Kit
 
+<p align="center">
+  <img src="assets/brand/triage-kit-wordmark.png" alt="Triage Kit - Collect, Analyze, Understand" width="820">
+</p>
+
 Two-tier incident response tooling concept to complement the playbooks and TTX work.
 
 ## Naming

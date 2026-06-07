@@ -1,5 +1,9 @@
 # Triage Kit Brand Assets
 
+## Wordmark
+
+- `triage-kit-wordmark.png` - primary horizontal project wordmark for the public README and documentation headers
+
 ## TK Hex Mark
 
 Primary transparent mark:
